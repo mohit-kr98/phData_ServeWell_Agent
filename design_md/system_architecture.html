@@ -1,0 +1,379 @@
+<title>ServeWell IT Support Agent — System Architecture</title>
+<style>
+  :root {
+    --bg: #F2F5F4;
+    --panel: #FFFFFF;
+    --panel-soft: #E9EEEC;
+    --ink: #16211F;
+    --ink-soft: #4B5A57;
+    --line: #C7D3CF;
+    --accent: #0E6E63;
+    --accent-soft: #DCEEEA;
+    --l1: #1E8F5F;
+    --l1-soft: #E1F3E7;
+    --l2: #C0632A;
+    --l2-soft: #F8E9DC;
+    --nonit: #6E6A86;
+    --nonit-soft: #E9E7F1;
+    --guard: #B23B32;
+    --guard-soft: #F9E3E0;
+    --shadow: 0 1px 2px rgba(20,30,28,0.06), 0 6px 16px -8px rgba(20,30,28,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101615;
+      --panel: #172020;
+      --panel-soft: #1D2726;
+      --ink: #E7EFED;
+      --ink-soft: #9FB0AC;
+      --line: #2C3937;
+      --accent: #3FBDAC;
+      --accent-soft: #1C3532;
+      --l1: #4FCB8C;
+      --l1-soft: #163627;
+      --l2: #E39A5E;
+      --l2-soft: #3A2A18;
+      --nonit: #ABA5CC;
+      --nonit-soft: #272338;
+      --guard: #E8756A;
+      --guard-soft: #3A1F1C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -10px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101615; --panel: #172020; --panel-soft: #1D2726; --ink: #E7EFED; --ink-soft: #9FB0AC;
+    --line: #2C3937; --accent: #3FBDAC; --accent-soft: #1C3532; --l1: #4FCB8C; --l1-soft: #163627;
+    --l2: #E39A5E; --l2-soft: #3A2A18; --nonit: #ABA5CC; --nonit-soft: #272338;
+    --guard: #E8756A; --guard-soft: #3A1F1C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -10px rgba(0,0,0,0.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #F2F5F4; --panel: #FFFFFF; --panel-soft: #E9EEEC; --ink: #16211F; --ink-soft: #4B5A57;
+    --line: #C7D3CF; --accent: #0E6E63; --accent-soft: #DCEEEA; --l1: #1E8F5F; --l1-soft: #E1F3E7;
+    --l2: #C0632A; --l2-soft: #F8E9DC; --nonit: #6E6A86; --nonit-soft: #E9E7F1;
+    --guard: #B23B32; --guard-soft: #F9E3E0; --shadow: 0 1px 2px rgba(20,30,28,0.06), 0 6px 16px -8px rgba(20,30,28,0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    padding: 40px clamp(16px, 4vw, 48px) 56px;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace; }
+
+  header {
+    max-width: 1400px;
+    margin: 0 auto 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.15;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .sub {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    max-width: 68ch;
+    line-height: 1.5;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 4px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+  .board {
+    max-width: 1400px;
+    margin: 0 auto;
+    overflow-x: auto;
+  }
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr;
+    align-items: stretch;
+    min-width: 1180px;
+  }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stage-head {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--line);
+    margin-bottom: 2px;
+  }
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .connector svg { width: 26px; height: 26px; }
+  .connector path { stroke: var(--ink-soft); stroke-width: 1.6; fill: none; }
+  .connector polygon { fill: var(--ink-soft); }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  .card h3 {
+    margin: 0 0 4px;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+  .card .port {
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 10.5px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .card p {
+    margin: 6px 0 0;
+    font-size: 12.5px;
+    line-height: 1.48;
+    color: var(--ink-soft);
+  }
+  .card .fn {
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 11.5px;
+    background: var(--panel-soft);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  .card.accent { border-color: var(--accent); }
+  .card ul.tags { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+  .card ul.tags li { font-family: ui-monospace, monospace; font-size: 10.5px; background: var(--panel-soft); border: 1px solid var(--line); padding: 2px 6px; border-radius: 5px; color: var(--ink-soft); }
+
+  .routes { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .route {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11.5px; font-weight: 600;
+    padding: 4px 8px; border-radius: 6px;
+  }
+  .route.l1 { background: var(--l1-soft); color: var(--l1); }
+  .route.l2 { background: var(--l2-soft); color: var(--l2); }
+  .route.nonit { background: var(--nonit-soft); color: var(--nonit); }
+  .route .dot { background: currentColor; }
+
+  .guardrail-box {
+    border: 1px dashed var(--guard);
+    background: var(--guard-soft);
+    border-radius: 8px;
+    padding: 9px 11px;
+    margin-top: 8px;
+  }
+  .guardrail-box .gh {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--guard); margin-bottom: 4px;
+  }
+  .guardrail-box ul { margin: 0; padding-left: 15px; }
+  .guardrail-box li { font-size: 11.5px; line-height: 1.5; color: var(--ink); }
+
+  .strip {
+    max-width: 1400px;
+    margin: 22px auto 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .strip .col h4 {
+    margin: 0 0 4px;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .strip .col p { margin: 0; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  .strip .col { border-left: 2px solid var(--line); padding-left: 14px; }
+  .strip .col:first-child { border-left: none; padding-left: 0; }
+
+  footer {
+    max-width: 1400px;
+    margin: 18px auto 0;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    font-family: ui-monospace, monospace;
+  }
+</style>
+
+<header>
+  <div class="eyebrow">ServeWell Hospitality &middot; L1 IT Support &middot; POC</div>
+  <h1>Agent architecture: ticket in, grounded resolution or clean escalation out</h1>
+  <p class="sub">Two LLM agents, a reranked RAG pipeline over runbooks/FAQs/SOPs, three structured-data tools, and a hard grounding guardrail — every step logged for the trace viewer and the offline evaluator.</p>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--l1)"></span>L1_GUIDED — resolved via runbook</span>
+    <span class="chip"><span class="dot" style="background:var(--l2)"></span>L2_ESCALATION — human hand-off</span>
+    <span class="chip"><span class="dot" style="background:var(--nonit)"></span>NON_IT — routed out</span>
+    <span class="chip"><span class="dot" style="background:var(--guard)"></span>Guardrail — hard-coded constraint</span>
+  </div>
+</header>
+
+<div class="board">
+<div class="pipeline">
+
+  <!-- STAGE 1 -->
+  <div class="stage">
+    <div class="stage-head">1 · Sources</div>
+    <div class="card">
+      <h3>Knowledge base</h3>
+      <p>48 Markdown docs — runbooks, FAQs, SOPs, system specs.</p>
+      <ul class="tags"><li>kb/runbooks</li><li>kb/faq</li><li>kb/sop</li><li>kb/system-specs</li></ul>
+    </div>
+    <div class="card">
+      <h3>Structured records</h3>
+      <p>Per-store and per-asset facts the agent can't get from text alone.</p>
+      <ul class="tags"><li>assets.csv</li><li>stores.csv</li><li>sla_matrix.csv</li></ul>
+    </div>
+    <div class="card accent">
+      <h3>Incoming ticket</h3>
+      <p>Simulated ITSM ticket — subject, description, priority, store/asset IDs.</p>
+      <span class="fn">POST /triage</span>
+    </div>
+  </div>
+
+  <div class="connector"><svg viewBox="0 0 26 26"><path d="M2 13 H20"/><polygon points="18,8 26,13 18,18"/></svg></div>
+
+  <!-- STAGE 2 -->
+  <div class="stage">
+    <div class="stage-head">2 · Retrieval</div>
+    <div class="card">
+      <h3>Ingestion service <span class="port">:8001</span></h3>
+      <p>AST-aware Markdown parser tags each section faq / procedure / table, then chunks and embeds it.</p>
+      <ul class="tags"><li>markdown-it-py</li><li>Bedrock Titan Embed v2</li></ul>
+    </div>
+    <div class="card">
+      <h3>pgvector</h3>
+      <p>main_index (baseline) + delta_index (incremental updates), ~1.5k vectors.</p>
+    </div>
+    <div class="card">
+      <h3>Query pipeline <span class="port">:8002</span></h3>
+      <p>Searches both indexes, dedupes, reranks with a cross-encoder, returns top-k with source doc names.</p>
+      <span class="fn">search_knowledge_base()</span>
+    </div>
+    <div class="card">
+      <h3>Structured-lookup tools</h3>
+      <p>Direct CSV reads exposed as agent tools.</p>
+      <ul class="tags"><li class="mono">get_asset_info</li><li class="mono">get_store_info</li><li class="mono">check_sla</li></ul>
+    </div>
+  </div>
+
+  <div class="connector"><svg viewBox="0 0 26 26"><path d="M2 13 H20"/><polygon points="18,8 26,13 18,18"/></svg></div>
+
+  <!-- STAGE 3 -->
+  <div class="stage">
+    <div class="stage-head">3 · Orchestration &middot; api_service :8000</div>
+    <div class="card accent">
+      <h3>Triage agent</h3>
+      <p>Single LLM call classifies the raw ticket into one of three routes.</p>
+      <div class="routes">
+        <div class="route l1"><span class="dot"></span>L1_GUIDED</div>
+        <div class="route l2"><span class="dot"></span>L2_ESCALATION</div>
+        <div class="route nonit"><span class="dot"></span>NON_IT</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Resolution agent</h3>
+      <p>Tool-calling loop (max 5 turns) over the retrieval and lookup tools, ending in one action.</p>
+      <div class="guardrail-box">
+        <div class="gh">Guardrails</div>
+        <ul>
+          <li>Must call <span class="fn">search_knowledge_base</span> before any answer — no un-grounded replies</li>
+          <li>2 failed searches &rarr; auto <span class="fn">escalate_to_l2</span></li>
+          <li>2 troubleshooting replies required before it may escalate for any other reason</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"><svg viewBox="0 0 26 26"><path d="M2 13 H20"/><polygon points="18,8 26,13 18,18"/></svg></div>
+
+  <!-- STAGE 4 -->
+  <div class="stage">
+    <div class="stage-head">4 · Actions &amp; interfaces</div>
+    <div class="card">
+      <h3>Final action</h3>
+      <div class="routes">
+        <div class="route l1"><span class="dot"></span><span class="fn">reply_to_user</span> / <span class="fn">resolve_ticket</span></div>
+        <div class="route l2"><span class="dot"></span><span class="fn">escalate_to_l2</span></div>
+      </div>
+      <p>Simulated action tools — return a structured result, no live ITSM call in the POC.</p>
+    </div>
+    <div class="card">
+      <h3>Streamlit UI</h3>
+      <p>app.py — ticket picker, live agent trace (reasoning + every tool call/result), final response.</p>
+    </div>
+    <div class="card">
+      <h3>Admin backend <span class="port">:8003</span></h3>
+      <p>Index browser, vector-store stats, and the evaluation endpoints below.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="strip">
+  <div class="col">
+    <h4>Observability</h4>
+    <p>Every agent call is <span class="fn" style="background:transparent;padding:0">@traceable</span> into LangSmith; the UI trace view mirrors the same reasoning + tool-call log.</p>
+  </div>
+  <div class="col">
+    <h4>Routing accuracy</h4>
+    <p>Triage output vs. <span class="fn" style="background:transparent;padding:0">correct_routing</span> across 220 hand-labeled tickets in <span class="fn" style="background:transparent;padding:0">labels/train_labels.json</span>.</p>
+  </div>
+  <div class="col">
+    <h4>Retrieval accuracy</h4>
+    <p>Retrieved doc names vs. each ticket's <span class="fn" style="background:transparent;padding:0">relevant_kb_docs</span> — hit-rate and recall@k.</p>
+  </div>
+  <div class="col">
+    <h4>Eval output</h4>
+    <p>Metrics + per-ticket CSV written to <span class="fn" style="background:transparent;padding:0">data/eval_runs/</span> on every run.</p>
+  </div>
+</div>
+
+<footer>services/eval_labeled.py &middot; agent_core/llm_client.py &middot; design_md/system_architecture.html</footer>

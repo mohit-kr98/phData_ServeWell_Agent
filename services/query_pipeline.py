@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Langchain imports
-from langchain_openai import OpenAIEmbeddings
+from langchain_aws import BedrockEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector
 
 # Reranker import
@@ -42,27 +42,22 @@ print("Loading CrossEncoder model...")
 reranker_model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 print("CrossEncoder model loaded.")
 
+BEDROCK_EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
+
 class QueryRequest(BaseModel):
     query: str
     n_results: int = 3
     search_type: str = "similarity"
-    embedding_model: str = "text-embedding-3-small"
+    embedding_model: str = BEDROCK_EMBEDDING_MODEL
 
 @app.post("/query")
 async def query_knowledge_base(req: QueryRequest):
     try:
-        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY") or "lm-studio"
-        base_url = os.environ.get("OPENAI_API_BASE")
-        if not base_url and not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
-            base_url = "https://openrouter.ai/api/v1"
-
-        embeddings = OpenAIEmbeddings(
-            model=req.embedding_model,
-            api_key=api_key,
-            base_url=base_url,
-            check_embedding_ctx_length=False
+        embeddings = BedrockEmbeddings(
+            model_id=req.embedding_model,
+            region_name=os.environ.get("AWS_REGION", "us-east-1")
         )
-        
+
         candidates = []
         initial_k = max(10, req.n_results * 2)
         

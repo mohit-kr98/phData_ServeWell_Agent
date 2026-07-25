@@ -5,7 +5,7 @@ import psycopg2
 from typing import Optional
 
 from langchain_community.vectorstores.pgvector import PGVector
-from langchain_openai import OpenAIEmbeddings
+from langchain_aws import BedrockEmbeddings
 from sentence_transformers import CrossEncoder
 
 import uvicorn
@@ -24,15 +24,12 @@ def get_reranker():
         reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
     return reranker
 
+BEDROCK_EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
+
 def get_embeddings():
-    api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY") or "dummy"
-    base_url = "https://openrouter.ai/api/v1" if (not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY")) else None
-    
-    return OpenAIEmbeddings(
-        model="text-embedding-3-small",
-        api_key=api_key,
-        base_url=base_url,
-        check_embedding_ctx_length=False
+    return BedrockEmbeddings(
+        model_id=BEDROCK_EMBEDDING_MODEL,
+        region_name=os.environ.get("AWS_REGION", "us-east-1")
     )
 
 class SearchRequest(BaseModel):
