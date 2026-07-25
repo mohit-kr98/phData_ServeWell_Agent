@@ -1,0 +1,13 @@
+fastapi
+python-dotenv
+langchain-core
+langchain-openai
+langchain-community
+faiss-cpu
+markdown-it-py
+tiktoken
+uvicorn
+pydantic
+
+psycopg2-binary==2.9.9
+pgvector==0.2.5

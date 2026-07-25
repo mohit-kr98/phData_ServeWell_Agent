@@ -1,0 +1,11 @@
+.env
+.env2
+*.pyc
+__pycache__/
+.DS_Store
+generate/.checkpoint.json
+data/
+chroma_db/
+faiss_index*/
+logs/
+.vscode/

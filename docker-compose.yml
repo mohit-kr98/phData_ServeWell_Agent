@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  pgvector:
+    image: ankane/pgvector:latest
+    container_name: pgvector_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: vectordb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  data_ingestion:
+    build:
+      context: .
+      dockerfile: Dockerfile.ingestion
+    container_name: data_ingestion_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/app
+    environment:
+      - PGVECTOR_CONNECTION_STRING=postgresql+psycopg2://postgres:password@pgvector:5432/vectordb
+    env_file:
+      - .env
+    depends_on:
+      - pgvector
+    restart: unless-stopped
+
+  query_pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile.query
+    container_name: query_pipeline_service
+    ports:
+      - "8002:8002"
+    volumes:
+      - .:/app
+    environment:
+      - PGVECTOR_CONNECTION_STRING=postgresql+psycopg2://postgres:password@pgvector:5432/vectordb
+    env_file:
+      - .env
+    depends_on:
+      - pgvector
+    restart: unless-stopped
+
+  admin_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    container_name: admin_backend_service
+    ports:
+      - "8003:8003"
+    volumes:
+      - .:/app
+    environment:
+      - PGVECTOR_CONNECTION_STRING=postgresql+psycopg2://postgres:password@pgvector:5432/vectordb
+      - QUERY_URL=http://query_pipeline:8002
+    env_file:
+      - .env
+    depends_on:
+      - pgvector
+      - query_pipeline
+    restart: unless-stopped
+
+  api_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    container_name: api_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PGVECTOR_CONNECTION_STRING=postgresql+psycopg2://postgres:password@pgvector:5432/vectordb
+      - QUERY_URL=http://query_pipeline:8002
+    env_file:
+      - .env
+    depends_on:
+      - pgvector
+      - query_pipeline
+    restart: unless-stopped
+    command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+
+volumes:
+  pgdata:

@@ -1,0 +1,22 @@
+system,version,release_date,known_bugs,patch_available,notes
+FoodTech POS,v4.2.1,2022-03-15,Screen flicker on idle > 30min,Yes — v4.2.2 patch,EOL scheduled 2026-12
+FoodTech POS,v4.2.2,2022-09-10,None known,No,Stable
+FoodTech POS,v4.2.3,2023-06-01,Rare PIN pad timeout on dual-boot hardware,Yes — disable dual-boot mode,Recommended for v4.x fleet
+FoodTech POS,v5.1.0,2024-01-20,Loyalty sync delay > 5min during peak,Yes — v5.1.1 patch,
+FoodTech POS,v5.1.1,2024-07-08,None known,No,Current stable release
+OrbitPOS,v2.0,2021-11-01,Drawer auto-open on void,Yes — config flag DRAWER_VOID=0,Franchise variant
+OrbitPOS,v2.1,2023-02-14,None known,No,Current stable release
+CreamTech SC-300,v3.1,2022-05-10,E04 false alarm with ambient temp > 35C,Yes — firmware 3.1.2,Retrofit required for stores above 35C
+CreamTech SC-500,v2.4,2023-08-22,None known,No,Current stable
+FrostyPro 800,v1.8,2021-07-01,Overrun on mix level < 10%,Partial — manual check recommended,
+FrostyPro 800,v2.0,2023-12-01,None known,No,Current stable
+NetLink NL-3000,v2.1,2022-04-01,DHCP pool exhaustion with > 40 devices,Yes — expand DHCP pool via admin,
+NetLink NL-3000,v2.2,2023-10-15,None known,No,Current stable
+Cisco SG350,15.2.1,2022-01-10,None known,No,
+EpsonTM-T88VI,v1.12,2021-06-01,None known,No,
+StarMC Print v2,v3.0,2023-03-01,None known,No,
+ServeWell Kiosk,v2.0,2023-02-01,Payment reader timeout after sleep > 10min,Yes — disable sleep mode in kiosk settings,
+ServeWell Kiosk,v2.1,2024-03-15,None known,No,Current stable
+TouchPoint K1,v1.1,2023-09-01,None known,No,
+ServeWell Online Portal,v3.2,2023-04-01,Zomato webhook delay up to 90s,Partial — contact Zomato support,
+ServeWell Online Portal,v3.4,2024-06-01,None known,No,Current stable
