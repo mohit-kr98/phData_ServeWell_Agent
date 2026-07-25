@@ -1,3 +1,5 @@
+# phData_ServeWell_Agent
+
 # ServeWell IT Support Agent POC
 
 This repository contains the proof-of-concept (POC) for ServeWell's agentic IT Support triage system, built on the simulated phData Intelligence Platform.
@@ -58,3 +60,4 @@ The solution uses a two-agent orchestration system:
     This will launch a web interface where you can select tickets from the queue and visualize the agent's thought process, tool calls, and final resolution.
 
 The CLI script `main.py` will load a sample ticket, run the Triage Agent, and if routed to L1, trigger the Resolution Agent. The Streamlit UI provides a more interactive exploration.
+
