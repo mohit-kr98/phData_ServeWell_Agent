@@ -38,6 +38,15 @@ app = FastAPI(title="Knowledge Base Ingestion API")
 PGVECTOR_CONNECTION_STRING = os.environ.get("PGVECTOR_CONNECTION_STRING", "postgresql+psycopg2://postgres:password@localhost:5432/vectordb")
 MAIN_COLLECTION = "main_index"
 DELTA_COLLECTION = "delta_index"
+BEDROCK_EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
+
+
+def get_embeddings():
+    from langchain_aws import BedrockEmbeddings
+    return BedrockEmbeddings(
+        model_id=BEDROCK_EMBEDDING_MODEL,
+        region_name=os.environ.get("AWS_REGION", "us-east-1")
+    )
 
 class IngestRequest(BaseModel):
     directory: str = "kb"
@@ -520,22 +529,10 @@ async def ingest_data(req: IngestRequest):
     os.environ["LANGCHAIN_PROJECT"] = ingestion_project
 
     try:
-        from langchain_openai import OpenAIEmbeddings
         from langchain_community.vectorstores.pgvector import PGVector
 
-        logger.info("Initializing embedding generation client (text-embedding-3-small)...")
-        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY") or "lm-studio"
-        base_url = os.environ.get("OPENAI_API_BASE")
-        if not base_url and not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
-            base_url = "https://openrouter.ai/api/v1"
-
-        print("OpenAIEmbeddings")
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            api_key=api_key,
-            base_url=base_url,
-            check_embedding_ctx_length=False
-        )
+        logger.info(f"Initializing embedding generation client ({BEDROCK_EMBEDDING_MODEL})...")
+        embeddings = get_embeddings()
 
         vectorstore = PGVector(
             connection_string=PGVECTOR_CONNECTION_STRING,
@@ -580,22 +577,11 @@ async def ingest_data(req: IngestRequest):
 @app.post("/add_chunk")
 async def add_chunk(req: AddChunkRequest):
     try:
-        from langchain_openai import OpenAIEmbeddings
         from langchain_community.vectorstores.pgvector import PGVector
         from langchain_core.documents import Document
 
-        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY") or "lm-studio"
-        base_url = os.environ.get("OPENAI_API_BASE")
-        if not base_url and not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
-            base_url = "https://openrouter.ai/api/v1"
-        
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            api_key=api_key,
-            base_url=base_url,
-            check_embedding_ctx_length=False
-        )
-        
+        embeddings = get_embeddings()
+
         doc = Document(
             page_content=req.content,
             metadata={
@@ -620,21 +606,10 @@ async def add_chunk(req: AddChunkRequest):
 @app.post("/delete_chunk")
 async def delete_chunk(req: DeleteChunkRequest):
     try:
-        from langchain_openai import OpenAIEmbeddings
         from langchain_community.vectorstores.pgvector import PGVector
-        
-        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY") or "lm-studio"
-        base_url = os.environ.get("OPENAI_API_BASE")
-        if not base_url and not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
-            base_url = "https://openrouter.ai/api/v1"
-        
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            api_key=api_key,
-            base_url=base_url,
-            check_embedding_ctx_length=False
-        )
-        
+
+        embeddings = get_embeddings()
+
         collection = MAIN_COLLECTION if req.index_type.lower() == "main" else DELTA_COLLECTION
         
         store = PGVector(
@@ -655,21 +630,10 @@ async def delete_chunk(req: DeleteChunkRequest):
 async def rebuild_main_index():
     """Merges the Delta index into the Main HNSW index, then wipes the Delta index."""
     try:
-        from langchain_openai import OpenAIEmbeddings
         from langchain_community.vectorstores.pgvector import PGVector
         import psycopg2
 
-        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY") or "lm-studio"
-        base_url = os.environ.get("OPENAI_API_BASE")
-        if not base_url and not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENROUTER_API_KEY"):
-            base_url = "https://openrouter.ai/api/v1"
-
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            api_key=api_key,
-            base_url=base_url,
-            check_embedding_ctx_length=False
-        )
+        embeddings = get_embeddings()
 
         # Connect to Postgres directly to move chunks from delta to main
         conn_str = PGVECTOR_CONNECTION_STRING.replace("+psycopg2", "")

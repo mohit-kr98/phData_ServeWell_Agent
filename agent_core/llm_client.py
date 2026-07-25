@@ -112,31 +112,34 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
         initial_query = ticket_json
         
     initial_context = search_knowledge_base(query=initial_query[:500])
-    
+
+    trace = [
+        {"type": "tool_call", "name": "search_knowledge_base", "args": {"query": initial_query[:500]}},
+        {"type": "tool_result", "name": "search_knowledge_base", "result": str(initial_context)},
+    ]
+
     context_prompt = f"""
     [SYSTEM AUTOMATED SEARCH RESULT]
-    I have automatically searched the Knowledge Base for you using the ticket details. 
+    I have automatically searched the Knowledge Base for you using the ticket details.
     Here are the results:
-    
+
     {initial_context}
-    
+
     If these runbooks contain the solution, use them to resolve the ticket. If they are irrelevant, use the `search_knowledge_base` tool to search with different keywords.
     """
-    
+
     messages = [
         SystemMessage(content=sys_prompt),
         HumanMessage(content=ticket_json + "\n\n" + context_prompt)
     ]
-    
+
     if chat_history:
         for msg in chat_history:
             if msg.get("role") == "user":
                 messages.append(HumanMessage(content=msg.get("content", "")))
             else:
                 messages.append(AIMessage(content=msg.get("content", "")))
-    
-    trace = []
-    
+
     print("--- Resolution Agent Thinking ---")
     max_loops = 5
     loop_count = 0
