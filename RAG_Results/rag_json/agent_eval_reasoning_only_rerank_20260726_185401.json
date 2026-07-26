@@ -1,0 +1,3494 @@
+{
+  "run_id": "agent_eval_reasoning_only_rerank_20260726_185401",
+  "eval_type": "agent_eval_reasoning_only",
+  "reranker_enabled": true,
+  "metrics": {
+    "total_tickets": 256,
+    "routing_mode": "reasoning_only (escalation_flag withheld from agent)",
+    "routing_ground_truth": "tickets/train_index.csv:escalation_flag (official)",
+    "retrieval_ground_truth": "labels/train_labels.json:relevant_kb_docs (LLM-generated, not officially verified)",
+    "routing_total": 256,
+    "routing_correct": 175,
+    "routing_accuracy": 0.68359375,
+    "retrieval_total": 199,
+    "retrieval_hit_rate": 0.9949748743718593,
+    "retrieval_recall_avg": 0.6493419478344101,
+    "errors": 0
+  },
+  "details": [
+    {
+      "ticket_id": "INC-00001",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00004",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00005",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-payment-reader.md",
+        "netlink-router.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00006",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00007",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md",
+        "pos-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00008",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-scanner.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00010",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-vpn.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00011",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-devices-not-connecting.md",
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "foodtech-pos.md",
+        "network-faq.md",
+        "printers-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00012",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "netlink-router.md",
+        "network-slow.md",
+        "network-router-offline.md",
+        "network-faq.md",
+        "escalation-procedure.md",
+        "network-vpn.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00013",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00014",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-not-cooling.md",
+        "soft-serve-faq.md",
+        "soft-serve-error-codes.md",
+        "frostypro-soft-serve.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00015",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "pos-faq.md",
+        "foodtech-pos.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00016",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "printers-faq.md",
+        "pos-printer-integration.md",
+        "star-printer.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00017",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00018",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00019",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00020",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "shift-start-checklist.md",
+        "shift-end-checklist.md",
+        "netlink-router.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00021",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "netlink-router.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00022",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "frostypro-soft-serve.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00023",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "shift-start-checklist.md",
+        "orbitpos.md",
+        "online-orders-faq.md",
+        "pos-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.42857142857142855
+    },
+    {
+      "ticket_id": "INC-00024",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-end-of-day.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00025",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00026",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00028",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-aggregator-disconnect.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00029",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00030",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-end-of-day.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00031",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "printers-faq.md",
+        "star-printer.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00033",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md",
+        "netlink-router.md",
+        "pos-printer-integration.md",
+        "pos-end-of-day.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00034",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00035",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-end-of-day.md",
+        "orbitpos.md",
+        "pos-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00037",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md",
+        "netlink-router.md",
+        "frostypro-soft-serve.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00038",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-touchscreen.md",
+        "foodtech-pos.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00039",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00040",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "epson-printer.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00041",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "star-printer.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "printer-driver-reinstall.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00042",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "netlink-router.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.375
+    },
+    {
+      "ticket_id": "INC-00043",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md",
+        "network-guest-wifi.md",
+        "star-printer.md",
+        "frostypro-soft-serve.md",
+        "epson-printer.md",
+        "orbitpos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2857142857142857
+    },
+    {
+      "ticket_id": "INC-00044",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "network-faq.md",
+        "netlink-router.md",
+        "online-orders-faq.md",
+        "escalation-procedure.md",
+        "network-vpn.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00045",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "netlink-router.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00046",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "star-printer.md",
+        "online-orders-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00047",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "foodtech-pos.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00048",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "foodtech-pos.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00051",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00053",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "netlink-router.md",
+        "frostypro-soft-serve.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00054",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "pos-startup-failure.md",
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md",
+        "network-devices-not-connecting.md",
+        "network-vpn.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00056",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "kiosk-payment-reader.md",
+        "frostypro-soft-serve.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00057",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00058",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-paper-jam.md",
+        "star-printer.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00059",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00060",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-screen-frozen.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00062",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-touchscreen.md",
+        "foodtech-pos.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00063",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00064",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "pos-faq.md",
+        "foodtech-pos.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2857142857142857
+    },
+    {
+      "ticket_id": "INC-00068",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "printer-offline.md",
+        "pos-faq.md",
+        "epson-printer.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00069",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "epson-printer.md",
+        "online-orders-faq.md",
+        "network-guest-wifi.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00070",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00071",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "star-printer.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00073",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00074",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "star-printer.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00075",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00078",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00079",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "star-printer.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00081",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00082",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00083",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00085",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-screen-frozen.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00087",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-screen-frozen.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00088",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-devices-not-connecting.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "kiosks-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00089",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00090",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "pos-faq.md",
+        "orbitpos.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.375
+    },
+    {
+      "ticket_id": "INC-00091",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00092",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00093",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00094",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "star-printer.md",
+        "kiosks-faq.md",
+        "soft-serve-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00095",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00096",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "netlink-router.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00097",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00098",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-screen-frozen.md",
+        "foodtech-pos.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00099",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00100",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "netlink-router.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00101",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-payment-reader.md",
+        "epson-printer.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00102",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "printer-paper-jam.md",
+        "star-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00103",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00104",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md",
+        "netlink-router.md",
+        "kiosks-faq.md",
+        "network-slow.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00106",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00107",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "pos-software-update.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "pos-pin-pad.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00109",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00110",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "creamtech-soft-serve.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00111",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00112",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00114",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-paper-jam.md",
+        "star-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00115",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00116",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-cash-drawer.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00117",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "shift-start-checklist.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "epson-printer.md",
+        "online-orders-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00118",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00119",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00120",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00121",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "pos-software-update.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00122",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00123",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00124",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00125",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00126",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00127",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "printer-paper-jam.md",
+        "epson-printer.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00128",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-scanner.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00129",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-screen-frozen.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00130",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00131",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00132",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "creamtech-soft-serve.md",
+        "frostypro-soft-serve.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00133",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "star-printer.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00136",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-motor-alarm.md",
+        "kiosk-software-crash.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00138",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00139",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md",
+        "creamtech-soft-serve.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00140",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "pos-faq.md",
+        "foodtech-pos.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00141",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "foodtech-pos.md",
+        "kiosks-faq.md",
+        "soft-serve-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00142",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00143",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-not-cooling.md",
+        "star-printer.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.42857142857142855
+    },
+    {
+      "ticket_id": "INC-00144",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00145",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00146",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00147",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-faq.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00148",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "star-printer.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00149",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md",
+        "orbitpos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00150",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-motor-alarm.md",
+        "soft-serve-faq.md",
+        "soft-serve-error-codes.md",
+        "epson-printer.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-cleaning-stuck.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00151",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00152",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-not-on-kds.md",
+        "foodtech-pos.md",
+        "network-faq.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00153",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00154",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00155",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md",
+        "creamtech-soft-serve.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00156",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-slow.md",
+        "pos-slow-performance.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00157",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "frostypro-soft-serve.md",
+        "online-orders-faq.md",
+        "network-guest-wifi.md",
+        "pos-pin-pad.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2857142857142857
+    },
+    {
+      "ticket_id": "INC-00158",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-motor-alarm.md",
+        "netlink-router.md",
+        "frostypro-soft-serve.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00159",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-not-on-kds.md",
+        "epson-printer.md",
+        "network-guest-wifi.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00160",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "shift-start-checklist.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "creamtech-soft-serve.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5714285714285714
+    },
+    {
+      "ticket_id": "INC-00161",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00162",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00163",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-touchscreen.md",
+        "netlink-router.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00164",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00165",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "netlink-router.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00166",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-motor-alarm.md",
+        "creamtech-soft-serve.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00167",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00168",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md",
+        "epson-printer.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00169",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "creamtech-soft-serve.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00170",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00173",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "orbitpos.md",
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00174",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "star-printer.md",
+        "online-orders-faq.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00175",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00176",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00179",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "pos-faq.md",
+        "escalation-procedure.md",
+        "network-vpn.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00180",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "pos-faq.md",
+        "foodtech-pos.md",
+        "printers-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00181",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-end-of-day.md",
+        "orbitpos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00183",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00185",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-devices-not-connecting.md",
+        "network-guest-wifi.md",
+        "pos-payment-error.md",
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00186",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00188",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "orbitpos.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.42857142857142855
+    },
+    {
+      "ticket_id": "INC-00189",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "netlink-router.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00191",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00193",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00194",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-slow.md",
+        "network-devices-not-connecting.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00195",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-slow.md",
+        "network-faq.md",
+        "netlink-router.md",
+        "online-orders-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00197",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00198",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "epson-printer.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00200",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00202",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "pos-startup-failure.md",
+        "pos-payment-error.md",
+        "pos-software-update.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00204",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md",
+        "pos-payment-error.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00205",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00206",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00207",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00210",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00211",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md",
+        "netlink-router.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00212",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "creamtech-soft-serve.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00214",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00216",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00217",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "kiosk-frozen.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00218",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "star-printer.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00219",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00221",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "star-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00222",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "pos-printer-integration.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "star-printer.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "epson-printer.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00223",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-cash-drawer.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00224",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00225",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md",
+        "foodtech-pos.md",
+        "network-guest-wifi.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00226",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md",
+        "star-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00227",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00228",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "netlink-router.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00229",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00230",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "star-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00233",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "shift-start-checklist.md",
+        "online-orders-faq.md",
+        "star-printer.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00234",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-software-crash.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00235",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "pos-slow-performance.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "escalation-procedure.md",
+        "network-vpn.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00236",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md",
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-paper-jam.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00237",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00238",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00239",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "pos-slow-performance.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "printers-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "pos-startup-failure.md",
+        "pos-pin-pad.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00240",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md",
+        "star-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00241",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-cash-drawer.md",
+        "orbitpos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00242",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "pos-startup-failure.md",
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-vpn.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00244",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-faq.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00245",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "pos-pin-pad.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00246",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00247",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00248",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "printer-paper-jam.md",
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00249",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00250",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "pos-slow-performance.md",
+        "pos-startup-failure.md",
+        "network-devices-not-connecting.md",
+        "network-router-offline.md",
+        "netlink-router.md",
+        "printers-faq.md",
+        "kiosks-faq.md",
+        "pos-faq.md",
+        "network-vpn.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00252",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-aggregator-disconnect.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00253",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md",
+        "foodtech-pos.md",
+        "online-orders-menu-mismatch.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00256",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "shift-start-checklist.md",
+        "online-orders-faq.md",
+        "netlink-router.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00257",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-touchscreen.md",
+        "epson-printer.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00258",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00259",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "kiosk-payment-reader.md",
+        "epson-printer.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00260",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "netlink-router.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00261",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-menu-mismatch.md",
+        "netlink-router.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieval_hit": false,
+      "retrieval_recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00262",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-software-crash.md",
+        "star-printer.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00264",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-slow.md",
+        "pos-slow-performance.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "pos-faq.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00265",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "kiosk-software-crash.md",
+        "netlink-router.md",
+        "kiosks-faq.md",
+        "network-slow.md",
+        "pos-printer-integration.md",
+        "kiosk-touchscreen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00266",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md",
+        "orbitpos.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00268",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "netlink-router.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00269",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "star-printer.md",
+        "online-orders-faq.md",
+        "kiosk-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00270",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00271",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00272",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00273",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "pos-faq.md",
+        "escalation-procedure.md",
+        "network-vpn.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8333333333333334
+    },
+    {
+      "ticket_id": "INC-00274",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00275",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "pos-pin-pad.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "pos-software-update.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00277",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-software-update.md",
+        "pos-faq.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00278",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00279",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "star-printer.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00280",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "kiosk-frozen.md",
+        "creamtech-soft-serve.md",
+        "pos-faq.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00281",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md",
+        "foodtech-pos.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00282",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "orbitpos.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00286",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00288",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "pos-faq.md",
+        "epson-printer.md",
+        "printers-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00289",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-overcooling.md",
+        "star-printer.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00290",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md",
+        "foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00291",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00292",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md",
+        "netlink-router.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00293",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "star-printer.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00295",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-software-update.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00296",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md",
+        "star-printer.md",
+        "epson-printer.md",
+        "pos-faq.md",
+        "printers-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00297",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-faq.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00298",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00299",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md",
+        "orbitpos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00300",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00301",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-vpn.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00302",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00304",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00305",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "star-printer.md",
+        "printer-wrong-output.md",
+        "pos-printer-integration.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00306",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "kiosks-faq.md",
+        "soft-serve-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00307",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00308",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "network-slow.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00311",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00313",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "star-printer.md",
+        "pos-printer-integration.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5714285714285714
+    },
+    {
+      "ticket_id": "INC-00314",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00315",
+      "expected_escalate": false,
+      "actual_routing": "l2_escalation",
+      "routing_correct": false
+    },
+    {
+      "ticket_id": "INC-00316",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "printers-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 1.0
+    },
+    {
+      "ticket_id": "INC-00318",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00319",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-overcooling.md",
+        "star-printer.md",
+        "foodtech-pos.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    }
+  ]
+}

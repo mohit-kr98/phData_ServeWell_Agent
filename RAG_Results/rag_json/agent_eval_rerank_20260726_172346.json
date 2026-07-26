@@ -1,0 +1,137 @@
+{
+  "run_id": "agent_eval_rerank_20260726_172346",
+  "eval_type": "agent_eval",
+  "reranker_enabled": true,
+  "metrics": {
+    "total_tickets": 10,
+    "routing_mode": "flag_honored (agent sees the ITSM escalation_flag, as in production)",
+    "routing_ground_truth": "tickets/train_index.csv:escalation_flag (official)",
+    "retrieval_ground_truth": "labels/train_labels.json:relevant_kb_docs (LLM-generated, not officially verified)",
+    "routing_total": 10,
+    "routing_correct": 10,
+    "routing_accuracy": 1.0,
+    "retrieval_total": 5,
+    "retrieval_hit_rate": 1.0,
+    "retrieval_recall_avg": 0.38,
+    "errors": 0
+  },
+  "details": [
+    {
+      "ticket_id": "INC-00001",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "pos-software-update.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00004",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00005",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-payment-reader.md",
+        "system-specs/netlink-router.md",
+        "pos-faq.md",
+        "kiosks-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00006",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00007",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00008",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00010",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "pos-slow-performance.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md"
+      ]
+    },
+    {
+      "ticket_id": "INC-00011",
+      "expected_escalate": true,
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00012",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-slow.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "system-specs/netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00013",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "network-slow.md",
+        "network-devices-not-connecting.md",
+        "system-specs/netlink-router.md",
+        "network-faq.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4
+    }
+  ]
+}

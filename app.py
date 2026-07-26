@@ -80,10 +80,9 @@ def list_sample_tickets():
 
 @st.cache_data
 def load_labels() -> dict:
-    """LLM-generated labels (relevant_kb_docs, correct_routing, ...) -- a
-    labeling aid, not officially verified. Only relevant_kb_docs (used for
-    retrieval eval) should be treated as load-bearing; correct_routing
-    disagrees with the official escalation_flag on ~48% of tickets."""
+    """The challenge answer key (correct_routing, relevant_kb_docs,
+    should_escalate, evaluator_notes, ...). Shipped with the challenge data
+    and used as ground truth for both routing and retrieval."""
     if not LABELS_PATH.exists():
         return {}
     return {x["ticket_id"]: x for x in json.loads(LABELS_PATH.read_text())}
@@ -91,7 +90,9 @@ def load_labels() -> dict:
 
 @st.cache_data
 def load_train_index() -> dict:
-    """Official ground truth provided with the challenge."""
+    """The escalation_flag each ticket ARRIVES carrying -- an input field, not
+    the answer. Agrees with the answer key's correct_routing only 50.5% of the
+    time; shown as a diagnostic so the divergence stays visible."""
     if not TRAIN_INDEX_CSV.exists():
         return {}
     df = pd.read_csv(TRAIN_INDEX_CSV)
@@ -166,34 +167,13 @@ def classify_status(final_resp: str) -> str:
 def analyze_guardrails(trace):
     """Rule-based, transparent re-check of the guardrails the agent's system
     prompt claims to enforce — computed independently from the trace so the
-    UI isn't just trusting the agent's own narration."""
-    checks = []
-    search_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") == "search_knowledge_base"]
-    search_results = [s for s in trace if s.get("type") == "tool_result" and s.get("name") == "search_knowledge_base"]
-    action_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") in ("reply_to_user", "resolve_ticket", "escalate_to_l2")]
-    reply_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") == "reply_to_user"]
-    escalate_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") == "escalate_to_l2"]
+    UI isn't just trusting the agent's own narration.
 
-    if action_calls and search_calls:
-        grounded = trace.index(search_calls[0]) < trace.index(action_calls[0])
-    else:
-        grounded = bool(search_calls)
-    checks.append((grounded, "Searched the knowledge base before taking any action" if grounded
-                   else "No knowledge-base search occurred before acting — grounding guardrail bypassed"))
-
-    if len(search_calls) > 2:
-        checks.append((False, f"Called search_knowledge_base {len(search_calls)} times — exceeds the 2-attempt cap"))
-
-    if escalate_calls:
-        empty_searches = sum(1 for s in search_results if "No relevant documents found" in s.get("result", ""))
-        if empty_searches >= 2:
-            checks.append((True, f"Escalated after {empty_searches} empty knowledge-base search(es)"))
-        elif len(reply_calls) >= 2:
-            checks.append((True, f"Escalated after {len(reply_calls)} troubleshooting attempt(s) with the user"))
-        else:
-            checks.append((False, "Escalated without 2 empty searches or 2 troubleshooting replies — escalation guardrail may have been bypassed"))
-
-    return checks
+    Thin adapter over services.eval_quality.check_guardrails so the UI and the
+    batch evaluation grade against one implementation instead of two that can
+    silently drift apart."""
+    from services.eval_quality import check_guardrails
+    return [(c["passed"], c["message"]) for c in check_guardrails(trace)]
 
 
 def render_trace(trace):
@@ -224,6 +204,106 @@ def render_trace(trace):
             text = (step.get("text") or "").strip()
             if text:
                 st.markdown(f"> 🧠 {text}")
+
+
+def build_escalation_context(state: dict) -> str:
+    """Summarize how/why a ticket reached L2, for the copilot's context --
+    covers both a direct triage escalation and one the L1 resolution agent
+    made mid-conversation after attempting to help."""
+    parts = [f"Triage reasoning: {state.get('reasoning', '')}"]
+    if state.get("routing") == "L1_GUIDED" and state.get("chat_history"):
+        parts.append("L1 attempted guided resolution before this was escalated. L1 conversation transcript:")
+        for msg in state["chat_history"]:
+            role = "Store employee" if msg["role"] == "user" else "L1 Agent"
+            parts.append(f"{role}: {msg['content']}")
+    return "\n".join(parts)
+
+
+def render_approval_gate(state: dict, ticket_id: str):
+    """Human-in-the-loop gate for a remediation action the agent proposed.
+
+    Nothing has executed at this point. The agent can only propose; the tool
+    that actually runs an action refuses without approved=True, and that check
+    lives in agent_core/actions.py rather than in this screen — so declining
+    here is not the only thing standing between a proposal and a device."""
+    proposal = state.get("proposed_action")
+    if not proposal:
+        return
+
+    outcome = state.get("action_outcome")
+    st.markdown("##### 🔐 Action proposed — human approval required")
+
+    if outcome:
+        if outcome.get("status") == "EXECUTED":
+            st.success(f"✅ Executed: {outcome.get('label')} on `{outcome.get('asset_id')}` "
+                       f"(approved by {outcome.get('approved_by')})")
+            st.caption(outcome.get("note", ""))
+        elif outcome.get("status") == "DENIED":
+            st.info("🚫 Denied by reviewer — nothing ran. The store still has the manual steps above.")
+        else:
+            st.warning(f"Refused: {outcome.get('reason', outcome)}")
+        return
+
+    st.warning(f"**{proposal.get('label')}** on `{proposal.get('asset_id')}`")
+    st.caption(f"Agent's reason: {proposal.get('reason')}")
+    st.caption("The agent proposed this; it has not run. Approving executes a simulated "
+               "device-management call and writes an audit record.")
+
+    col_a, col_d = st.columns([1, 1])
+    with col_a:
+        if st.button("✅ Approve & run", type="primary", key=f"approve_{ticket_id}"):
+            try:
+                res, _ = timed_post(f"{API_URL}/execute_action", {
+                    "action": proposal.get("action"), "asset_id": proposal.get("asset_id"),
+                    "ticket_id": ticket_id, "approved": True, "approved_by": "demo-reviewer",
+                }, timeout=30)
+                state["action_outcome"] = res
+            except Exception as e:
+                st.error(str(e))
+            st.rerun()
+    with col_d:
+        if st.button("🚫 Deny", key=f"deny_{ticket_id}"):
+            state["action_outcome"] = {"status": "DENIED"}
+            st.rerun()
+
+
+def render_l2_copilot(state: dict, ticket_id: str, ticket_json: str):
+    st.markdown("##### 🧑‍💻 L2 Engineer Copilot")
+    st.caption("Chat with an assistant sharing L1's knowledge-base/asset/store/SLA tools — for the "
+               "human L2 engineer investigating this ticket, not the store.")
+
+    if "l2_chat_history" not in state:
+        state["l2_chat_history"] = []
+    if "l2_trace" not in state:
+        state["l2_trace"] = []
+
+    for msg in state["l2_chat_history"]:
+        with st.chat_message(msg["role"]):
+            st.write(msg["content"])
+            if msg.get("elapsed") is not None:
+                st.caption(f"⏱️ {msg['elapsed']:.1f}s")
+
+    engineer_msg = st.chat_input("Ask the copilot (as the L2 engineer)...", key=f"l2_chat_{ticket_id}")
+    if engineer_msg:
+        state["l2_chat_history"].append({"role": "user", "content": engineer_msg})
+        with st.spinner("Copilot is investigating..."):
+            try:
+                payload = {
+                    "ticket_json": ticket_json,
+                    "escalation_context": build_escalation_context(state),
+                    "chat_history": state["l2_chat_history"],
+                }
+                result, elapsed = timed_post(f"{API_URL}/l2_copilot", payload, timeout=180)
+                final_resp = result.get("final_response", "Error")
+                state["l2_chat_history"].append({"role": "assistant", "content": final_resp, "elapsed": elapsed})
+                state["l2_trace"].extend(result.get("trace", []))
+            except Exception as e:
+                st.error(str(e))
+        st.rerun()
+
+    if state["l2_trace"]:
+        st.markdown("##### Copilot trace")
+        render_trace(state["l2_trace"])
 
 
 st.set_page_config(page_title="ServeWell IT Support Agent", layout="wide", page_icon="🛠️")
@@ -304,7 +384,7 @@ with tab_demo:
     if ticket_id and ticket_json:
         state_key = f"demo_state_{ticket_id}"
         if state_key not in st.session_state:
-            st.session_state[state_key] = {"started": False, "chat_history": [], "trace": [], "routing": "", "reasoning": "", "status": "", "triage_time": None, "triage_timing": []}
+            st.session_state[state_key] = {"started": False, "chat_history": [], "trace": [], "routing": "", "reasoning": "", "status": "", "triage_time": None, "triage_timing": [], "l2_chat_history": [], "l2_trace": [], "proposed_action": None, "action_outcome": None}
         state = st.session_state[state_key]
 
         col_run, col_reset = st.columns([1, 5])
@@ -333,6 +413,7 @@ with tab_demo:
                         final_resp = resolve_result.get("final_response", "Error")
                         state["chat_history"].append({"role": "assistant", "content": final_resp, "elapsed": elapsed})
                         state["trace"] = resolve_result.get("trace", [])
+                        state["proposed_action"] = resolve_result.get("proposed_action")
                         state["status"] = classify_status(final_resp)
                     except Exception as e:
                         state["status"] = "escalated"
@@ -358,14 +439,18 @@ with tab_demo:
             if official_escalate is not None:
                 agent_escalated = (state["routing"] or "").strip().upper() == "L2_ESCALATION"
                 match = agent_escalated == official_escalate
-                verdict = "✅ Agent matched" if match else "❌ Agent disagreed"
-                expected_label = "should escalate (L2)" if official_escalate else "should NOT escalate (L1)"
-                st.markdown(f"**Official ground truth (tickets/train_index.csv):** `{expected_label}` — {verdict}")
+                flag_label = "escalation_flag=true" if official_escalate else "escalation_flag=false"
+                st.caption(f"Ticket arrived marked `{flag_label}` — an input field, correct only ~50% of the time. Not the score.")
 
             gt = load_labels().get(ticket_id)
             if gt:
-                gt_routing = gt.get("correct_routing", "")
-                st.caption(f"LLM-generated label (unverified, disagrees with official ~48% of the time): `{gt_routing}`" + (f" — {gt['escalation_reason']}" if gt.get("escalation_reason") else ""))
+                gt_routing = str(gt.get("correct_routing", ""))
+                agent_routing = (state["routing"] or "").strip().lower()
+                match = agent_routing == gt_routing.strip().lower()
+                verdict = "✅ Agent matched" if match else "❌ Agent disagreed"
+                st.markdown(f"**Answer key (labels/train_labels.json):** `{gt_routing}` — {verdict}")
+                if gt.get("escalation_reason"):
+                    st.caption(gt["escalation_reason"])
 
             latency_rows = build_latency_rows(state)
             if latency_rows:
@@ -396,16 +481,22 @@ with tab_demo:
                                     final_resp = resolve_result.get("final_response", "Error")
                                     state["chat_history"].append({"role": "assistant", "content": final_resp, "elapsed": elapsed})
                                     state["trace"].extend(resolve_result.get("trace", []))
+                                    if resolve_result.get("proposed_action"):
+                                        state["proposed_action"] = resolve_result["proposed_action"]
                                     state["status"] = classify_status(final_resp)
                                 except Exception as e:
                                     st.error(str(e))
                             st.rerun()
+
+                    render_approval_gate(state, ticket_id)
 
                     if state["status"] in ("resolved", "escalated"):
                         if state["status"] == "resolved":
                             st.success("✅ Ticket resolved")
                         else:
                             st.warning("🚨 Escalated to L2")
+                            st.divider()
+                            render_l2_copilot(state, ticket_id, ticket_json)
 
                 with right:
                     if gt and gt.get("relevant_kb_docs"):
@@ -418,7 +509,7 @@ with tab_demo:
                             icon=None,
                         )
                         st.caption("Expected: " + ", ".join(f"`{d}`" + (" ✓" if d in retrieved else "") for d in sorted(relevant)))
-                        st.caption("Note: relevant_kb_docs is LLM-generated, not officially verified — treat as directional.")
+                        st.caption("Source: `labels/train_labels.json:relevant_kb_docs` — the challenge answer key.")
 
                     st.markdown("##### Guardrails")
                     checks = analyze_guardrails(state["trace"])
@@ -429,30 +520,94 @@ with tab_demo:
 
                     st.markdown("##### Agent trace")
                     render_trace(state["trace"])
+            elif state["routing"] == "L2_ESCALATION":
+                render_l2_copilot(state, ticket_id, ticket_json)
             else:
                 st.info("Routed outside the L1 flow — no resolution agent run needed for this ticket.")
 
 # ============================================================ EVALUATION ===
 with tab_eval:
     st.subheader("Routing & retrieval accuracy")
-    st.caption("Routing accuracy: vs. `tickets/train_index.csv` escalation_flag — official ground truth from the challenge. "
-               "Retrieval hit-rate/recall: vs. `labels/train_labels.json` relevant_kb_docs — LLM-generated, not officially verified; treat as directional.")
+    st.caption("Graded against `labels/train_labels.json` — the answer key shipped with the challenge: "
+               "`correct_routing` for routing, `relevant_kb_docs` for retrieval. "
+               "The ticket's own `escalation_flag` is an input field, not the answer (they agree only 50.5% of the time), "
+               "so it is reported below as a diagnostic rather than a score.")
 
     metrics_files = sorted(EVAL_RUNS_DIR.glob("labeled_eval_*_metrics.json")) if EVAL_RUNS_DIR.exists() else []
 
     if not metrics_files:
         st.info("No evaluation runs yet. Use the panel below to run one.")
     else:
-        latest = json.loads(metrics_files[-1].read_text())
+        def _format_run_label(f: Path) -> str:
+            m = json.loads(f.read_text())
+            stamp = f.stem.replace("labeled_eval_", "").replace("_metrics", "")
+            try:
+                dt = datetime.datetime.strptime(stamp, "%Y%m%d_%H%M%S")
+                when = dt.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                when = stamp
+            mode = "flag-honored" if "flag_honored" in m.get("routing_mode", "") else "reasoning-only"
+            return (f"{when} — routing {m.get('routing_accuracy', 0)*100:.1f}% "
+                    f"({mode}), retrieval recall {m.get('retrieval_recall_avg', 0)*100:.1f}%")
+
+        run_options = list(reversed(metrics_files))  # most recent first
+        run_labels = {f: _format_run_label(f) for f in run_options}
+        selected_file = st.selectbox(
+            "Evaluation run", run_options,
+            format_func=lambda f: run_labels[f],
+            help="Every evaluation run is saved to data/eval_runs/ — pick any past run to inspect, not just the latest.",
+        )
+        is_latest = selected_file == metrics_files[-1]
+
+        selected = json.loads(selected_file.read_text())
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Routing accuracy", f"{latest.get('routing_accuracy', 0) * 100:.1f}%",
-                  help=f"{latest.get('routing_correct', 0)}/{latest.get('routing_total', 0)} correct")
-        c2.metric("Retrieval hit-rate", f"{latest.get('retrieval_hit_rate', 0) * 100:.1f}%",
+        c1.metric("Routing accuracy", f"{selected.get('routing_accuracy', 0) * 100:.1f}%",
+                  help=f"{selected.get('routing_correct', 0)}/{selected.get('routing_total', 0)} correct")
+        c2.metric("Retrieval hit-rate", f"{selected.get('retrieval_hit_rate', 0) * 100:.1f}%",
                   help="Share of L1 tickets where at least one relevant runbook was retrieved")
-        c3.metric("Retrieval recall@k", f"{latest.get('retrieval_recall_avg', 0) * 100:.1f}%",
+        c3.metric("Retrieval recall@k", f"{selected.get('retrieval_recall_avg', 0) * 100:.1f}%",
                   help="Average share of all relevant docs found per ticket")
-        c4.metric("Tickets evaluated", latest.get("total_tickets", 0), help=f"{latest.get('errors', 0)} errors")
-        st.caption(f"Latest run: `{metrics_files[-1].stem}`")
+        c4.metric("Tickets evaluated", selected.get("total_tickets", 0), help=f"{selected.get('errors', 0)} errors")
+        st.caption(f"{'Latest' if is_latest else 'Selected'} run: `{selected_file.stem}`")
+
+        quality = selected.get("quality")
+        if quality:
+            st.markdown("###### Groundedness & guardrails")
+            st.caption("Routing accuracy says which queue a ticket went to; these say whether the guidance the store "
+                       "actually receives is grounded in a real runbook and whether the agent's own guardrails held.")
+            q1, q2, q3, q4 = st.columns(4)
+            q1.metric("Groundedness", f"{quality.get('groundedness_avg', 0) * 100:.1f}%",
+                      help="Share of the agent's concrete, actionable specifics (menu paths, durations, error codes, PINs) "
+                           "that actually appear in a retrieved runbook.")
+            q2.metric("Fully-grounded replies", f"{quality.get('fully_grounded_rate', 0) * 100:.1f}%",
+                      help="Replies where every checkable specific was supported by retrieved content.")
+            q3.metric("Unsupported specifics",
+                      f"{quality.get('specifics_unsupported', 0)}/{quality.get('specifics_total', 0)}",
+                      help="Individual claims not found in any retrieved doc — these are the ones that would send a store "
+                           "employee down a path that doesn't exist.")
+            q4.metric("Guardrail pass rate", f"{quality.get('guardrail_pass_rate', 0) * 100:.1f}%",
+                      help="Tickets where every guardrail check passed (searched before acting, search budget respected, "
+                           "escalation justified).")
+            fails = quality.get("guardrail_failures_by_check") or {}
+            bits = [f"{quality.get('tickets_with_no_checkable_claims', 0)} reply(s) made no checkable claims (excluded — "
+                    f"a cautious clarifying question shouldn't be scored as ungrounded)"]
+            if fails:
+                bits.append("guardrail failures: " + ", ".join(f"`{k}` ×{v}" for k, v in fails.items()))
+            st.caption(" · ".join(bits))
+
+        latency = selected.get("latency")
+        if latency:
+            st.markdown("###### Latency (measured in the same pass, no extra calls)")
+            l1, l2, l3, l4 = st.columns(4)
+            l1.metric("Avg total time", f"{latency.get('avg_total_time_s', 0):.2f}s")
+            l2.metric("Median total time", f"{latency.get('median_total_time_s', 0):.2f}s")
+            l3.metric("P95 total time", f"{latency.get('p95_total_time_s', 0):.2f}s")
+            l4.metric("Max total time", f"{latency.get('max_total_time_s', 0):.2f}s")
+            st.caption(f"Avg triage: {latency.get('avg_triage_time_s', 0):.2f}s · "
+                       f"Avg resolve: {latency.get('avg_resolve_time_s', 0):.2f}s")
+        else:
+            st.caption("No latency data for this run — it predates this being captured automatically "
+                       "(re-run to get it).")
 
         if len(metrics_files) > 1:
             hist = []
@@ -465,22 +620,27 @@ with tab_eval:
                 })
             st.line_chart(pd.DataFrame(hist).set_index("run"))
 
-        details_path = metrics_files[-1].with_name(metrics_files[-1].name.replace("_metrics.json", "_details.csv"))
+        details_path = selected_file.with_name(selected_file.name.replace("_metrics.json", "_details.csv"))
         if details_path.exists():
-            with st.expander("Per-ticket results"):
+            with st.expander("Per-ticket results", expanded=False):
                 st.dataframe(pd.read_csv(details_path), use_container_width=True)
 
     st.divider()
     st.markdown("##### Run a new evaluation")
-    st.caption("Calls the live agent for each ticket in train_index.csv — this is a real, not simulated, accuracy check.")
+    st.caption("Calls the live agent for each ticket in train_index.csv — this is a real, not simulated, accuracy check, "
+               "and also reports latency for the same run (same /triage + /resolve calls, timed -- no extra requests). "
+               "Always runs reasoning-only: each ticket's escalation_flag is withheld so the triage LLM has to judge "
+               "escalate-vs-not from the ticket text alone. (Honoring the flag is correct production behavior, but "
+               "since routing accuracy is graded against that same flag, letting the agent see it would just be "
+               "checking that a value equals itself -- trivially ~100%, and not a test of anything.)")
+
     limit = st.slider("Number of tickets to evaluate", 5, 256, 20)
     if st.button("▶️ Run evaluation now", type="primary"):
         with st.spinner(f"Evaluating {limit} tickets against ground truth..."):
             try:
                 from services.eval_labeled import evaluate as run_labeled_eval
                 new_metrics, _ = run_labeled_eval(limit=limit)
-                st.success("Evaluation complete.")
-                st.json(new_metrics)
+                st.success("Evaluation complete — accuracy and latency shown above.")
                 st.rerun()
             except Exception as e:
                 st.error(f"Evaluation failed: {e}")

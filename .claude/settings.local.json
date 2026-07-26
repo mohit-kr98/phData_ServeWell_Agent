@@ -94,7 +94,15 @@
       "Bash(curl -s http://localhost:8002/cache_stats)",
       "Bash(unzip -q \"/Users/mohit/Documents/3_Projects/servewell-it-agent-poc.zip\")",
       "mcp__visualize__read_me",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8001/docs)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8001/docs)",
+      "Bash(python3 -c \"import ast;[ast.parse\\(open\\(f\\).read\\(\\)\\) for f in ['agent_core/llm_client.py','services/eval_latency.py']]\")",
+      "Bash(FAQ_N_RESULTS=3 docker compose up -d api_service)",
+      "Bash(python3 -c \"import json; print\\(json.dumps\\(open\\('tickets/train/INC-00001.json'\\).read\\(\\)\\)\\)\")",
+      "Bash(curl -s -X POST http://localhost:8000/triage -H 'Content-Type: application/json' -d '{\"ticket_json\": __CMDSUB_OUTPUT__}')",
+      "Bash(timeout 590 python3 services/eval_labeled.py --n 256)",
+      "Bash(timeout 590 python3 services/eval_labeled.py --limit 256)",
+      "Bash(pip3 install *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(len\\(d\\)\\)\")"
     ]
   }
 }

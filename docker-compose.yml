@@ -79,6 +79,10 @@ services:
     environment:
       - PGVECTOR_CONNECTION_STRING=postgresql+psycopg2://postgres:password@pgvector:5432/vectordb
       - QUERY_URL=http://query_pipeline:8002
+      # Number of FAQ chunks attached to the reasoning prompt. A/B-testable
+      # via services/eval_labeled.py -- see FAQ_N_RESULTS in agent_core/llm_client.py.
+      - FAQ_N_RESULTS=${FAQ_N_RESULTS:-3}
+      - SUBJECT_SEARCH=${SUBJECT_SEARCH:-0}
     env_file:
       - .env
     depends_on:

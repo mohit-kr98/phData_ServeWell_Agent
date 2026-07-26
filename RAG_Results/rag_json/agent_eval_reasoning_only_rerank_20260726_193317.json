@@ -1,0 +1,147 @@
+{
+  "run_id": "agent_eval_reasoning_only_rerank_20260726_193317",
+  "eval_type": "agent_eval_reasoning_only",
+  "reranker_enabled": true,
+  "metrics": {
+    "total_tickets": 5,
+    "routing_mode": "reasoning_only (escalation_flag withheld from agent)",
+    "routing_ground_truth": "tickets/train_index.csv:escalation_flag (official)",
+    "retrieval_ground_truth": "labels/train_labels.json:relevant_kb_docs (LLM-generated, not officially verified)",
+    "routing_total": 5,
+    "routing_correct": 4,
+    "routing_accuracy": 0.8,
+    "retrieval_total": 4,
+    "retrieval_hit_rate": 1.0,
+    "retrieval_recall_avg": 0.5125,
+    "errors": 0,
+    "latency": {
+      "avg_total_time_s": 4.114,
+      "median_total_time_s": 3.502,
+      "p95_total_time_s": 6.219,
+      "max_total_time_s": 6.855,
+      "avg_triage_time_s": 0.728,
+      "avg_resolve_time_s": 3.386
+    }
+  },
+  "details": [
+    {
+      "ticket_id": "INC-00001",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4,
+      "triage_time_s": 0.578,
+      "resolve_time_s": 2.924,
+      "llm_time_s": 1.861,
+      "tool_time_s": 1.641,
+      "total_time_s": 3.502,
+      "num_llm_calls": 2,
+      "num_tool_calls": 5,
+      "search_knowledge_base_time_s": 1.367,
+      "get_system_spec_time_s": 0.001,
+      "search_faq_time_s": 0.273
+    },
+    {
+      "ticket_id": "INC-00004",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "foodtech-pos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.75,
+      "triage_time_s": 0.507,
+      "resolve_time_s": 2.637,
+      "llm_time_s": 1.833,
+      "tool_time_s": 1.311,
+      "total_time_s": 3.144,
+      "num_llm_calls": 2,
+      "num_tool_calls": 5,
+      "search_knowledge_base_time_s": 0.71,
+      "get_system_spec_time_s": 0.0,
+      "search_faq_time_s": 0.601
+    },
+    {
+      "ticket_id": "INC-00005",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "kiosk-payment-reader.md",
+        "netlink-router.md",
+        "kiosks-faq.md",
+        "pos-faq.md"
+      ],
+      "triage_time_s": 0.724,
+      "resolve_time_s": 2.67,
+      "llm_time_s": 2.277,
+      "tool_time_s": 1.117,
+      "total_time_s": 3.394,
+      "num_llm_calls": 2,
+      "num_tool_calls": 5,
+      "search_knowledge_base_time_s": 0.962,
+      "get_system_spec_time_s": 0.002,
+      "search_faq_time_s": 0.153
+    },
+    {
+      "ticket_id": "INC-00006",
+      "expected_escalate": true,
+      "actual_routing": "l1_guided",
+      "routing_correct": false,
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5,
+      "triage_time_s": 0.826,
+      "resolve_time_s": 2.85,
+      "llm_time_s": 2.181,
+      "tool_time_s": 1.494,
+      "total_time_s": 3.676,
+      "num_llm_calls": 2,
+      "num_tool_calls": 5,
+      "search_knowledge_base_time_s": 1.029,
+      "get_system_spec_time_s": 0.0,
+      "search_faq_time_s": 0.465
+    },
+    {
+      "ticket_id": "INC-00007",
+      "expected_escalate": false,
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "foodtech-pos.md",
+        "online-orders-faq.md",
+        "pos-faq.md",
+        "online-orders-menu-mismatch.md",
+        "kiosks-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.4,
+      "triage_time_s": 1.005,
+      "resolve_time_s": 5.849,
+      "llm_time_s": 4.454,
+      "tool_time_s": 2.401,
+      "total_time_s": 6.855,
+      "num_llm_calls": 5,
+      "num_tool_calls": 8,
+      "search_knowledge_base_time_s": 1.138,
+      "get_system_spec_time_s": 0.0,
+      "search_faq_time_s": 1.263
+    }
+  ]
+}
