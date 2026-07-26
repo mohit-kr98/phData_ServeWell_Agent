@@ -6,6 +6,7 @@ langchain-community
 faiss-cpu
 markdown-it-py
 tiktoken
+transformers
 uvicorn
 pydantic
 

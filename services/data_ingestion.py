@@ -179,7 +179,7 @@ class MarkdownParser:
                 current_content.append(code_content)
                 
         # Flush last section
-        text_content = "\\n\\n".join(current_content).strip()
+        text_content = "\n\n".join(current_content).strip()
         if text_content:
             meta = current_metadata.copy()
             
@@ -211,7 +211,7 @@ class MarkdownParser:
                                 lines.append(prefix + inline.content)
                     elif child.type in ["bullet_list", "ordered_list"]:
                         lines.append(self._extract_list_text(child, indent + 2))
-        return "\\n".join(lines)
+        return "\n".join(lines)
         
     def _determine_section_type(self, content: str, title: str, folder: str = "") -> str:
         # Table supersedes folder name
@@ -234,46 +234,103 @@ class MarkdownParser:
         return "general"
 
 class SectionChunker:
+    # The reranker (cross-encoder/ms-marco-MiniLM-L-6-v2, loaded in
+    # query_pipeline.py) has a hard 512 WordPiece-token limit on the *pair*
+    # (query, chunk) it scores -- not the chunk alone. Sizing chunks only
+    # against cl100k_base (a different tokenizer, used for the embedding
+    # model's much larger context window) let chunks through that silently
+    # truncate inside the reranker: BPE and WordPiece don't produce the same
+    # token count for the same text, especially for hyphenated asset IDs and
+    # technical jargon, and cl100k's 1000-token budget doesn't leave any room
+    # for the query itself once converted.
+    RERANKER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    RERANKER_MAX_LENGTH = 512
+    RERANKER_QUERY_RESERVE = 200  # room for the query (up to ~500 chars) + [CLS]/[SEP]/[SEP]
+
     def __init__(self, max_tokens: int = 1000):
         self.max_tokens = max_tokens
         self.encoder = tiktoken.get_encoding("cl100k_base")
-        
+
+        from transformers import AutoTokenizer
+        self.reranker_tokenizer = AutoTokenizer.from_pretrained(self.RERANKER_MODEL_NAME)
+        self.reranker_safe_tokens = self.RERANKER_MAX_LENGTH - self.RERANKER_QUERY_RESERVE
+        # Scales a WordPiece count onto the same numeric scale as max_tokens,
+        # so the existing cl100k-based split logic below also enforces the
+        # reranker's real limit without duplicating every chunking method.
+        self._reranker_scale = self.max_tokens / self.reranker_safe_tokens
+
     def _count_tokens(self, text: str) -> int:
         if not text:
             return 0
-        return len(self.encoder.encode(text))
+        cl100k_count = len(self.encoder.encode(text))
+        wordpiece_count = len(self.reranker_tokenizer.encode(text, add_special_tokens=False))
+        return max(cl100k_count, int(wordpiece_count * self._reranker_scale))
         
     def chunk(self, documents: List[Document]) -> List[Document]:
         final_chunks = []
         for doc in documents:
             if self._count_tokens(doc.page_content) <= self.max_tokens:
-                final_chunks.append(doc)
+                final_chunks.extend(self._enforce_reranker_limit(doc))
                 continue
                 
             sec_type = doc.metadata.get("section_type", "general")
-            
-            if sec_type == "faq":
-                doc_chunks = self._chunk_faq(doc)
-            elif sec_type == "procedure":
-                doc_chunks = self._chunk_procedure(doc)
-            elif sec_type == "table":
-                doc_chunks = self._chunk_table(doc)
-            else:
-                doc_chunks = self._chunk_generic(doc)
-                
             section_title = doc.metadata.get("section_title", "")
+
+            # The section title gets prepended to every resulting chunk below,
+            # so reserve its token cost first -- otherwise a chunk sized right
+            # up against max_tokens can end up over budget once the title is
+            # added back on, silently escaping the cap this method exists to
+            # enforce.
+            original_max_tokens = self.max_tokens
+            if section_title:
+                self.max_tokens = max(1, self.max_tokens - self._count_tokens(f"{section_title}\n\n"))
+            try:
+                if sec_type == "faq":
+                    doc_chunks = self._chunk_faq(doc)
+                elif sec_type == "procedure":
+                    doc_chunks = self._chunk_procedure(doc)
+                elif sec_type == "table":
+                    doc_chunks = self._chunk_table(doc)
+                else:
+                    doc_chunks = self._chunk_generic(doc)
+            finally:
+                self.max_tokens = original_max_tokens
+
             if section_title:
                 for c in doc_chunks:
                     if not c.page_content.startswith(section_title):
-                        c.page_content = f"{section_title}\\n\\n{c.page_content}"
-                        
-            final_chunks.extend(doc_chunks)
-                
+                        c.page_content = f"{section_title}\n\n{c.page_content}"
+
+            for c in doc_chunks:
+                final_chunks.extend(self._enforce_reranker_limit(c))
+
         logger.info(f"Chunked {len(documents)} logic sections into {len(final_chunks)} chunks using semantic overlap policies.")
         return final_chunks
 
+    def _enforce_reranker_limit(self, doc: Document) -> List[Document]:
+        """Hard backstop for the reranker's WordPiece budget.
+
+        The per-section-type chunkers above split at unit boundaries (a
+        table row, an FAQ answer, a procedure paragraph) and can't go finer
+        than one whole unit -- so a single unusually long unit (a dense
+        error-code table row, a long FAQ answer) can still come out over
+        budget even though the surrounding logic is sized correctly. This
+        catches that residual case by hard-slicing at the token level,
+        which token-budget sizing upstream can't guarantee against.
+        """
+        ids = self.reranker_tokenizer.encode(doc.page_content, add_special_tokens=False)
+        if len(ids) <= self.reranker_safe_tokens:
+            return [doc]
+
+        pieces = []
+        for start in range(0, len(ids), self.reranker_safe_tokens):
+            piece_ids = ids[start:start + self.reranker_safe_tokens]
+            piece_text = self.reranker_tokenizer.decode(piece_ids)
+            pieces.append(Document(page_content=piece_text, metadata=doc.metadata.copy()))
+        return pieces
+
     def _chunk_generic(self, doc: Document) -> List[Document]:
-        sentences = doc.page_content.replace('\\n\\n', ' ').split('. ')
+        sentences = doc.page_content.replace('\n\n', ' ').split('. ')
         chunks = []
         current_chunk = ""
         last_sentence = ""
@@ -297,24 +354,24 @@ class SectionChunker:
         return chunks
 
     def _chunk_faq(self, doc: Document) -> List[Document]:
-        paragraphs = doc.page_content.split('\\n\\n')
+        paragraphs = doc.page_content.split('\n\n')
         chunks = []
         current_chunk = ""
         current_question = ""
         last_paragraph = ""
-        
+
         for p in paragraphs:
             if "**Q:" in p or "Q:" in p:
                 current_question = p
-                
+
             if self._count_tokens(current_chunk) + self._count_tokens(p) > self.max_tokens and current_chunk:
                 chunks.append(Document(page_content=current_chunk, metadata=doc.metadata.copy()))
                 # Overlap: Question + last paragraph
-                overlap = f"{current_question}\\n\\n{last_paragraph}" if current_question else last_paragraph
-                current_chunk = f"{overlap}\\n\\n{p}" if overlap else p
+                overlap = f"{current_question}\n\n{last_paragraph}" if current_question else last_paragraph
+                current_chunk = f"{overlap}\n\n{p}" if overlap else p
             else:
                 if current_chunk:
-                    current_chunk += f"\\n\\n{p}"
+                    current_chunk += f"\n\n{p}"
                 else:
                     current_chunk = p
             last_paragraph = p
@@ -324,22 +381,22 @@ class SectionChunker:
         return chunks
 
     def _chunk_procedure(self, doc: Document) -> List[Document]:
-        paragraphs = doc.page_content.split('\\n')
+        paragraphs = doc.page_content.split('\n')
         chunks = []
         current_chunk = ""
         last_step = ""
-        
+
         for p in paragraphs:
             if not p.strip():
                 continue
-            
+
             if self._count_tokens(current_chunk) + self._count_tokens(p) > self.max_tokens and current_chunk:
                 chunks.append(Document(page_content=current_chunk.strip(), metadata=doc.metadata.copy()))
                 # Overlap: previous step
-                current_chunk = f"{last_step}\\n{p}" if last_step else p
+                current_chunk = f"{last_step}\n{p}" if last_step else p
             else:
                 if current_chunk:
-                    current_chunk += f"\\n{p}"
+                    current_chunk += f"\n{p}"
                 else:
                     current_chunk = p
             last_step = p
@@ -349,23 +406,23 @@ class SectionChunker:
         return chunks
 
     def _chunk_table(self, doc: Document) -> List[Document]:
-        lines = doc.page_content.split('\\n')
+        lines = doc.page_content.split('\n')
         table_header = []
         chunks = []
         current_chunk = ""
-        
+
         for line in lines:
             if "|" in line and len(table_header) < 2:
                 table_header.append(line)
-            
+
             if self._count_tokens(current_chunk) + self._count_tokens(line) > self.max_tokens and current_chunk:
                 chunks.append(Document(page_content=current_chunk.strip(), metadata=doc.metadata.copy()))
                 # Overlap: table header
-                header_str = "\\n".join(table_header)
-                current_chunk = f"{header_str}\\n{line}" if header_str else line
+                header_str = "\n".join(table_header)
+                current_chunk = f"{header_str}\n{line}" if header_str else line
             else:
                 if current_chunk:
-                    current_chunk += f"\\n{line}"
+                    current_chunk += f"\n{line}"
                 else:
                     current_chunk = line
                     

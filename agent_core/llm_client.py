@@ -231,8 +231,12 @@ def run_triage_agent(ticket_json: str):
 
 @traceable
 def run_resolution_agent(ticket_json: str, chat_history: list = None):
-    # Bind tools directly
-    llm = get_llm(temperature=0.2, max_tokens=700).bind_tools([
+    # temperature=0 (was 0.2): this step is a policy/procedure decision, not a
+    # creative one, and non-zero temperature was making "does the automated
+    # search already answer this?" a coin flip -- the same ticket would
+    # sometimes finalize in 1 loop turn and sometimes redundantly search again
+    # first, purely from sampling noise.
+    llm = get_llm(temperature=0.0, max_tokens=700).bind_tools([
         search_knowledge_base,
         search_faq,
         get_asset_info,
@@ -250,12 +254,18 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
     You have access to several tools.
     Process:
     1. Analyze the ticket symptoms.
-    2. Query the knowledge base for relevant runbooks using `search_knowledge_base`.
-    3. Look up asset or store info if needed using the respective tools.
+    2. An automated `search_knowledge_base` + FAQ search has ALREADY been run for you below -- read
+       it first. It finds the relevant runbook for the vast majority of tickets.
+    3. If it already contains a runbook that addresses this symptom, skip straight to
+       `reply_to_user` or `resolve_ticket` on your very first turn -- do NOT make any further tool
+       calls just to be thorough. Only call `search_knowledge_base` yourself if the automated result
+       is clearly about a different symptom/device, and only look up asset/store/SLA info if the
+       ticket's own text doesn't already answer what you need.
     4. Take a final action: Either `reply_to_user`, `resolve_ticket`, or `escalate_to_l2`.
-    
+
     Guardrail (CRITICAL):
-    - You MUST ALWAYS call `search_knowledge_base` to retrieve relevant runbooks BEFORE you take any action to resolve the ticket or reply to the user. Do not answer from your own knowledge.
+    - Every reply/resolution MUST be grounded in a runbook that's already in front of you (the
+      automated result, or your own follow-up search) -- never answer from your own knowledge.
     - You MUST base your troubleshooting steps strictly on the retrieved runbooks.
     - When replying to the user or resolving the ticket, you MUST provide a clear, step-by-step process for them to follow based on the runbook.
     - If the knowledge base does not contain relevant information, you MUST escalate to L2.

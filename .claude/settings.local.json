@@ -93,7 +93,8 @@
       "Bash(curl -s -m 2 -o /dev/null http://localhost:8003/docs)",
       "Bash(curl -s http://localhost:8002/cache_stats)",
       "Bash(unzip -q \"/Users/mohit/Documents/3_Projects/servewell-it-agent-poc.zip\")",
-      "mcp__visualize__read_me"
+      "mcp__visualize__read_me",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8001/docs)"
     ]
   }
 }
