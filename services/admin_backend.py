@@ -26,11 +26,23 @@ def get_reranker():
 
 BEDROCK_EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
 
-def get_embeddings():
-    return BedrockEmbeddings(
-        model_id=BEDROCK_EMBEDDING_MODEL,
-        region_name=os.environ.get("AWS_REGION", "us-east-1")
-    )
+# Created once and reused -- previously re-created per request, and each
+# store's similarity_search() re-embedded the query text independently (two
+# Titan API calls for one query).
+embeddings = BedrockEmbeddings(
+    model_id=BEDROCK_EMBEDDING_MODEL,
+    region_name=os.environ.get("AWS_REGION", "ap-south-1")
+)
+main_store = PGVector(
+    connection_string=PGVECTOR_CONNECTION_STRING,
+    embedding_function=embeddings,
+    collection_name=MAIN_COLLECTION
+)
+delta_store = PGVector(
+    connection_string=PGVECTOR_CONNECTION_STRING,
+    embedding_function=embeddings,
+    collection_name=DELTA_COLLECTION
+)
 
 class SearchRequest(BaseModel):
     query: str
@@ -48,32 +60,21 @@ def get_pgvector_stats():
         conn.close()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
     return {"total_vectors": total_vectors}
 
 @app.post("/pgvector/search")
 def pgvector_search(req: SearchRequest):
-    embeddings = get_embeddings()
-    main_store = PGVector(
-        connection_string=PGVECTOR_CONNECTION_STRING,
-        embedding_function=embeddings,
-        collection_name=MAIN_COLLECTION
-    )
-    delta_store = PGVector(
-        connection_string=PGVECTOR_CONNECTION_STRING,
-        embedding_function=embeddings,
-        collection_name=DELTA_COLLECTION
-    )
-    
+    query_vector = embeddings.embed_query(req.query)
     candidates = []
-    
+
     try:
-        candidates.extend(delta_store.similarity_search(req.query, k=req.initial_k))
+        candidates.extend(delta_store.similarity_search_by_vector(query_vector, k=req.initial_k))
     except Exception as e:
         pass # Handle empty delta store
-        
+
     try:
-        candidates.extend(main_store.similarity_search(req.query, k=req.initial_k))
+        candidates.extend(main_store.similarity_search_by_vector(query_vector, k=req.initial_k))
     except Exception as e:
         pass
         

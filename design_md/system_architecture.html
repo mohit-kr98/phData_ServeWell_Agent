@@ -232,6 +232,8 @@
   .strip .col p { margin: 0; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
   .strip .col { border-left: 2px solid var(--line); padding-left: 14px; }
   .strip .col:first-child { border-left: none; padding-left: 0; }
+  .stat { font-family: ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; font-size: 26px; font-weight: 700; color: var(--ink); margin: 2px 0 4px; }
+  .stripe-title { max-width: 1400px; margin: 30px auto 8px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
 
   footer {
     max-width: 1400px;
@@ -245,7 +247,7 @@
 <header>
   <div class="eyebrow">ServeWell Hospitality &middot; L1 IT Support &middot; POC</div>
   <h1>Agent architecture: ticket in, grounded resolution or clean escalation out</h1>
-  <p class="sub">Two LLM agents, a reranked RAG pipeline over runbooks/FAQs/SOPs, three structured-data tools, and a hard grounding guardrail — every step logged for the trace viewer and the offline evaluator.</p>
+  <p class="sub">Two LLM agents on AWS Bedrock, a reranked RAG pipeline over runbooks/FAQs/SOPs/specs, four structured-data tools, and a hard grounding guardrail — every step logged for the trace viewer and the offline evaluator.</p>
   <div class="legend">
     <span class="chip"><span class="dot" style="background:var(--l1)"></span>L1_GUIDED — resolved via runbook</span>
     <span class="chip"><span class="dot" style="background:var(--l2)"></span>L2_ESCALATION — human hand-off</span>
@@ -285,21 +287,21 @@
     <div class="card">
       <h3>Ingestion service <span class="port">:8001</span></h3>
       <p>AST-aware Markdown parser tags each section faq / procedure / table, then chunks and embeds it.</p>
-      <ul class="tags"><li>markdown-it-py</li><li>Bedrock Titan Embed v2</li></ul>
+      <ul class="tags"><li>markdown-it-py</li><li>Bedrock Titan Embed v2 &middot; 1024-dim &middot; ap-south-1</li></ul>
     </div>
     <div class="card">
       <h3>pgvector</h3>
-      <p>main_index (baseline) + delta_index (incremental updates), ~1.5k vectors.</p>
+      <p>main_index (baseline) + delta_index (incremental updates) &mdash; <strong>772 vectors</strong> from 48 KB docs.</p>
     </div>
     <div class="card">
       <h3>Query pipeline <span class="port">:8002</span></h3>
-      <p>Searches both indexes, dedupes, reranks with a cross-encoder, returns top-k with source doc names.</p>
+      <p>Searches both indexes, dedupes, reranks with a cross-encoder, returns top-<strong>5</strong> with source doc names.</p>
       <span class="fn">search_knowledge_base()</span>
     </div>
     <div class="card">
       <h3>Structured-lookup tools</h3>
-      <p>Direct CSV reads exposed as agent tools.</p>
-      <ul class="tags"><li class="mono">get_asset_info</li><li class="mono">get_store_info</li><li class="mono">check_sla</li></ul>
+      <p>Direct CSV reads exposed as agent tools, plus a deterministic KB lookup that bypasses semantic search entirely.</p>
+      <ul class="tags"><li class="mono">get_asset_info</li><li class="mono">get_store_info</li><li class="mono">check_sla</li><li class="mono">get_system_spec</li></ul>
     </div>
   </div>
 
@@ -311,6 +313,7 @@
     <div class="card accent">
       <h3>Triage agent</h3>
       <p>Single LLM call classifies the raw ticket into one of three routes.</p>
+      <ul class="tags"><li>Bedrock &middot; Nemotron Nano 3 30B</li></ul>
       <div class="routes">
         <div class="route l1"><span class="dot"></span>L1_GUIDED</div>
         <div class="route l2"><span class="dot"></span>L2_ESCALATION</div>
@@ -319,7 +322,8 @@
     </div>
     <div class="card">
       <h3>Resolution agent</h3>
-      <p>Tool-calling loop (max 5 turns) over the retrieval and lookup tools, ending in one action.</p>
+      <p>Tool-calling loop (max 5 turns) over the retrieval and lookup tools, ending in one action. A forced initial <span class="fn">search_knowledge_base</span> call plus a forced <span class="fn">get_system_spec</span> lookup (keyed off the ticket's <span class="fn">system_version</span> field) run automatically before the agent gets control &mdash; grounding and spec context are guaranteed, not optional.</p>
+      <ul class="tags"><li>OpenAI-compatible tool calling via invoke_model</li></ul>
       <div class="guardrail-box">
         <div class="gh">Guardrails</div>
         <ul>
@@ -344,9 +348,11 @@
       </div>
       <p>Simulated action tools — return a structured result, no live ITSM call in the POC.</p>
     </div>
-    <div class="card">
+    <div class="card accent">
       <h3>Streamlit UI</h3>
-      <p>app.py — ticket picker, live agent trace (reasoning + every tool call/result), final response.</p>
+      <p><span class="fn">app.py</span> &mdash; four tabs built around the live demo, not admin tooling:</p>
+      <ul class="tags"><li>🚀 Live Demo</li><li>📊 Evaluation</li><li>🏗️ Architecture &amp; KB</li><li>⚙️ Admin</li></ul>
+      <p>Live Demo accepts a sample ticket <em>or a freely-typed unseen one</em>, then renders the reasoning/tool trace alongside an independent guardrail re-check that inspects the trace itself rather than trusting the agent's own narration.</p>
     </div>
     <div class="card">
       <h3>Admin backend <span class="port">:8003</span></h3>
@@ -357,23 +363,27 @@
 </div>
 </div>
 
+<div class="stripe-title">Latest evaluation run &middot; 220 hand-labeled tickets &middot; labels/train_labels.json</div>
 <div class="strip">
   <div class="col">
-    <h4>Observability</h4>
-    <p>Every agent call is <span class="fn" style="background:transparent;padding:0">@traceable</span> into LangSmith; the UI trace view mirrors the same reasoning + tool-call log.</p>
-  </div>
-  <div class="col">
     <h4>Routing accuracy</h4>
-    <p>Triage output vs. <span class="fn" style="background:transparent;padding:0">correct_routing</span> across 220 hand-labeled tickets in <span class="fn" style="background:transparent;padding:0">labels/train_labels.json</span>.</p>
+    <div class="stat">85.5%</div>
+    <p>188/220 correct vs. <span class="fn" style="background:transparent;padding:0">correct_routing</span>. Triage agent, single call.</p>
   </div>
   <div class="col">
-    <h4>Retrieval accuracy</h4>
-    <p>Retrieved doc names vs. each ticket's <span class="fn" style="background:transparent;padding:0">relevant_kb_docs</span> — hit-rate and recall@k.</p>
+    <h4>Retrieval hit-rate</h4>
+    <div class="stat" style="color:var(--l1)">95.1%</div>
+    <p>Share of L1 tickets where at least one <span class="fn" style="background:transparent;padding:0">relevant_kb_docs</span> entry was retrieved.</p>
   </div>
   <div class="col">
-    <h4>Eval output</h4>
-    <p>Metrics + per-ticket CSV written to <span class="fn" style="background:transparent;padding:0">data/eval_runs/</span> on every run.</p>
+    <h4>Retrieval recall@k</h4>
+    <div class="stat">40.3%</div>
+    <p>Up from 34.8% before widening <span class="fn" style="background:transparent;padding:0">n_results</span> 3&rarr;5 and adding <span class="fn" style="background:transparent;padding:0">get_system_spec</span>.</p>
+  </div>
+  <div class="col">
+    <h4>Observability</h4>
+    <p>Every agent call is <span class="fn" style="background:transparent;padding:0">@traceable</span> into LangSmith; the UI trace view mirrors the same reasoning + tool-call log. Metrics + per-ticket CSV land in <span class="fn" style="background:transparent;padding:0">data/eval_runs/</span> on every run.</p>
   </div>
 </div>
 
-<footer>services/eval_labeled.py &middot; agent_core/llm_client.py &middot; design_md/system_architecture.html</footer>
+<footer>services/eval_labeled.py &middot; agent_core/llm_client.py &middot; agent_core/tools.py &middot; app.py &middot; design_md/system_architecture.html</footer>

@@ -1,0 +1,3467 @@
+{
+  "run_id": "retrieval_ablation_rerank_20260726_100208",
+  "eval_type": "retrieval_ablation",
+  "reranker_enabled": true,
+  "metrics": {
+    "total_tickets": 220,
+    "retrieval_total": 220,
+    "retrieval_hit_rate": 0.9772727272727273,
+    "retrieval_recall_avg": 0.33001082251082253,
+    "errors": 0
+  },
+  "details": [
+    {
+      "ticket_id": "INC-00162",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00282",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "orbitpos.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00008",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-scanner.md"
+      ],
+      "retrieved_docs": [
+        "pos-scanner.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00060",
+      "relevant_docs": [
+        "orbitpos.md",
+        "pos-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieved_docs": [
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00007",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00090",
+      "relevant_docs": [
+        "epson-printer.md",
+        "orbitpos.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printer-paper-jam.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.125
+    },
+    {
+      "ticket_id": "INC-00119",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00085",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieved_docs": [
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00024",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "network-slow.md",
+        "pos-end-of-day.md",
+        "pos-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "pos-end-of-day.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00019",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00121",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "pos-software-update.md"
+      ],
+      "hit": false,
+      "recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00120",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-slow.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00004",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "pos-payment-error.md",
+        "pos-pin-pad.md"
+      ],
+      "retrieved_docs": [
+        "pos-pin-pad.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00202",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "pos-software-update.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00057",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "online-orders-sync-failure.md",
+        "orbitpos.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00064",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printer-paper-jam.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "pos-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.14285714285714285
+    },
+    {
+      "ticket_id": "INC-00015",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00087",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-screen-frozen.md",
+        "pos-software-update.md"
+      ],
+      "retrieved_docs": [
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00107",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "pos-slow-performance.md",
+        "pos-software-update.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": false,
+      "recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00097",
+      "relevant_docs": [
+        "orbitpos.md",
+        "pos-faq.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00204",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00030",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-end-of-day.md",
+        "pos-slow-performance.md",
+        "shift-end-checklist.md"
+      ],
+      "retrieved_docs": [
+        "pos-end-of-day.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00073",
+      "relevant_docs": [
+        "epson-printer.md",
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00095",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-end-of-day.md",
+        "pos-screen-frozen.md",
+        "shift-end-checklist.md"
+      ],
+      "retrieved_docs": [
+        "pos-end-of-day.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00308",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "network-slow.md",
+        "pos-faq.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00216",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00229",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-payment-error.md",
+        "pos-pin-pad.md"
+      ],
+      "retrieved_docs": [
+        "pos-pin-pad.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00083",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "pos-screen-frozen.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "foodtech-pos.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00001",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "online-orders-sync-failure.md",
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00063",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "pos-software-update.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00129",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "pos-screen-frozen.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00082",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "pos-payment-error.md",
+        "foodtech-pos.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00241",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "orbitpos.md",
+        "pos-cash-drawer.md"
+      ],
+      "retrieved_docs": [
+        "pos-cash-drawer.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00223",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-cash-drawer.md"
+      ],
+      "retrieved_docs": [
+        "pos-cash-drawer.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00181",
+      "relevant_docs": [
+        "orbitpos.md",
+        "pos-end-of-day.md",
+        "pos-faq.md",
+        "pos-payment-error.md",
+        "pos-slow-performance.md",
+        "shift-end-checklist.md"
+      ],
+      "retrieved_docs": [
+        "pos-end-of-day.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00277",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-screen-frozen.md",
+        "pos-software-update.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-software-update.md",
+        "pos-startup-failure.md",
+        "pos-end-of-day.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00116",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-cash-drawer.md",
+        "pos-faq.md"
+      ],
+      "retrieved_docs": [
+        "pos-cash-drawer.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00286",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00191",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "pos-faq.md",
+        "pos-screen-frozen.md",
+        "pos-software-update.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "foodtech-pos.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00245",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "pos-software-update.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00018",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md",
+        "pos-software-update.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "pos-software-update.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00125",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00183",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00128",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-scanner.md"
+      ],
+      "retrieved_docs": [
+        "pos-scanner.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00239",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md",
+        "orbitpos.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00140",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "pos-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00290",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md",
+        "pos-payment-error.md",
+        "pos-slow-performance.md"
+      ],
+      "hit": false,
+      "recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00175",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-slow.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00207",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "network-slow.md",
+        "pos-faq.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00098",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieved_docs": [
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00295",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "pos-screen-frozen.md",
+        "pos-software-update.md"
+      ],
+      "retrieved_docs": [
+        "pos-software-update.md",
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00205",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "orbitpos.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00109",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "network-vpn.md"
+      ],
+      "retrieved_docs": [
+        "network-vpn.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00131",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-router-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00144",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-vpn.md"
+      ],
+      "retrieved_docs": [
+        "network-vpn.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00318",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00051",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-vpn.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "network-vpn.md",
+        "network-devices-not-connecting.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00270",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-router-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00044",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "online-orders-sync-failure.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00093",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-vpn.md"
+      ],
+      "retrieved_docs": [
+        "network-vpn.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00092",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-router-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00123",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00006",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00235",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "online-orders-sync-failure.md",
+        "network-slow.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00025",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00311",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "network-devices-not-connecting.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00301",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "network-vpn.md"
+      ],
+      "retrieved_docs": [
+        "network-vpn.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00292",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00103",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00214",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-devices-not-connecting.md",
+        "network-slow.md",
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00081",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-vpn.md"
+      ],
+      "retrieved_docs": [
+        "network-vpn.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00138",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-router-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00099",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-slow.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00013",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-slow.md",
+        "network-devices-not-connecting.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00156",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00185",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "pos-payment-error.md",
+        "network-devices-not-connecting.md",
+        "network-guest-wifi.md",
+        "pos-software-update.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00179",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00034",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-sync-failure.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "netlink-router.md",
+        "network-slow.md",
+        "network-router-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.375
+    },
+    {
+      "ticket_id": "INC-00275",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "pos-pin-pad.md",
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md"
+      ],
+      "hit": false,
+      "recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00194",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md"
+      ],
+      "retrieved_docs": [
+        "network-slow.md",
+        "network-devices-not-connecting.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00211",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00126",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-router-offline.md",
+        "pos-pin-pad.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "pos-startup-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00200",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00146",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-guest-wifi.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "netlink-router.md",
+        "network-slow.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00274",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00264",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-faq.md",
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "network-slow.md",
+        "pos-slow-performance.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00012",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-router-offline.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "network-slow.md",
+        "netlink-router.md",
+        "network-router-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00250",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "pos-startup-failure.md",
+        "network-router-offline.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00091",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-router-offline.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00273",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-guest-wifi.md",
+        "network-slow.md"
+      ],
+      "retrieved_docs": [
+        "network-guest-wifi.md",
+        "network-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00148",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00293",
+      "relevant_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "pos-printer-integration.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00244",
+      "relevant_docs": [
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00075",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00040",
+      "relevant_docs": [
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00165",
+      "relevant_docs": [
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00028",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00297",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00176",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00261",
+      "relevant_docs": [
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": false,
+      "recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00046",
+      "relevant_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "pos-printer-integration.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "star-printer.md",
+        "online-orders-sync-failure.md",
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "hit": true,
+      "recall": 0.8
+    },
+    {
+      "ticket_id": "INC-00152",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00042",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00117",
+      "relevant_docs": [
+        "epson-printer.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "pos-printer-integration.md",
+        "pos-software-update.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-printer-integration.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00228",
+      "relevant_docs": [
+        "network-router-offline.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00160",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "shift-start-checklist.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.2857142857142857
+    },
+    {
+      "ticket_id": "INC-00272",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00174",
+      "relevant_docs": [
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00222",
+      "relevant_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "pos-printer-integration.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00173",
+      "relevant_docs": [
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "orbitpos.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00069",
+      "relevant_docs": [
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00022",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00153",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "network-devices-not-connecting.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00193",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00280",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "kiosk-payment-reader.md",
+        "kiosks-faq.md",
+        "network-slow.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-cleaning-stuck.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00168",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00167",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00159",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00236",
+      "relevant_docs": [
+        "epson-printer.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "pos-printer-integration.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00268",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00271",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00106",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00039",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00260",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "netlink-router.md",
+        "network-router-offline.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "netlink-router.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00157",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-devices-not-connecting.md",
+        "network-faq.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.14285714285714285
+    },
+    {
+      "ticket_id": "INC-00033",
+      "relevant_docs": [
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00302",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-menu-mismatch.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-menu-mismatch.md",
+        "online-orders-faq.md",
+        "online-orders-aggregator-disconnect.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00256",
+      "relevant_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00188",
+      "relevant_docs": [
+        "network-devices-not-connecting.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "orbitpos.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.14285714285714285
+    },
+    {
+      "ticket_id": "INC-00111",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md",
+        "pos-printer-integration.md",
+        "online-orders-menu-mismatch.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00299",
+      "relevant_docs": [
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "orbitpos.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00122",
+      "relevant_docs": [
+        "netlink-router.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00252",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00233",
+      "relevant_docs": [
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "pos-software-update.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00023",
+      "relevant_docs": [
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md",
+        "orbitpos.md"
+      ],
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "orbitpos.md",
+        "pos-cash-drawer.md"
+      ],
+      "hit": true,
+      "recall": 0.14285714285714285
+    },
+    {
+      "ticket_id": "INC-00218",
+      "relevant_docs": [
+        "network-devices-not-connecting.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "pos-printer-integration.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00142",
+      "relevant_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00043",
+      "relevant_docs": [
+        "network-faq.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md",
+        "pos-slow-performance.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "hit": true,
+      "recall": 0.14285714285714285
+    },
+    {
+      "ticket_id": "INC-00047",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "online-orders-menu-mismatch.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00269",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-router-offline.md",
+        "network-slow.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00115",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00020",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "online-orders-aggregator-disconnect.md",
+        "online-orders-faq.md",
+        "online-orders-not-on-kds.md",
+        "online-orders-sync-failure.md"
+      ],
+      "retrieved_docs": [
+        "online-orders-not-on-kds.md",
+        "shift-start-checklist.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00053",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-not-cooling.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00110",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00118",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.5714285714285714
+    },
+    {
+      "ticket_id": "INC-00237",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-overcooling.md",
+        "frostypro-soft-serve.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00238",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00026",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00169",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00212",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00161",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00304",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00021",
+      "relevant_docs": [
+        "netlink-router.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00139",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "soft-serve-cleaning-stuck.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00112",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "creamtech-soft-serve.md",
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00096",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md",
+        "soft-serve-error-codes.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00170",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-cleaning-stuck.md",
+        "soft-serve-error-codes.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00037",
+      "relevant_docs": [
+        "netlink-router.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00017",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00074",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00291",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00079",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00319",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00281",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-cleaning-stuck.md",
+        "soft-serve-error-codes.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00186",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "frostypro-soft-serve.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00164",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00247",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md",
+        "soft-serve-overcooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00132",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "creamtech-soft-serve.md",
+        "soft-serve-overcooling.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-error-codes.md"
+      ],
+      "hit": true,
+      "recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00166",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-motor-alarm.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00266",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-cleaning-stuck.md",
+        "soft-serve-error-codes.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-cleaning-stuck.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00246",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-not-cooling.md",
+        "soft-serve-motor-alarm.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00143",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-not-cooling.md",
+        "soft-serve-overcooling.md"
+      ],
+      "hit": true,
+      "recall": 0.2857142857142857
+    },
+    {
+      "ticket_id": "INC-00289",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00078",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-error-codes.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00158",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "soft-serve-error-codes.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "soft-serve-error-codes.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00136",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "soft-serve-faq.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-motor-alarm.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00150",
+      "relevant_docs": [
+        "creamtech-soft-serve.md",
+        "escalation-procedure.md",
+        "frostypro-soft-serve.md",
+        "soft-serve-error-codes.md",
+        "soft-serve-faq.md"
+      ],
+      "retrieved_docs": [
+        "frostypro-soft-serve.md",
+        "soft-serve-motor-alarm.md",
+        "soft-serve-faq.md",
+        "soft-serve-not-cooling.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00230",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-wrong-output.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00278",
+      "relevant_docs": [
+        "epson-printer.md",
+        "escalation-procedure.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "epson-printer.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00071",
+      "relevant_docs": [
+        "network-devices-not-connecting.md",
+        "pos-printer-integration.md",
+        "printer-offline.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "star-printer.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00313",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "network-devices-not-connecting.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "star-printer.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.42857142857142855
+    },
+    {
+      "ticket_id": "INC-00288",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "epson-printer.md",
+        "printer-offline.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00145",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-wrong-output.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "epson-printer.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00031",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-offline.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md",
+        "printer-paper-jam.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00029",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00305",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "star-printer.md",
+        "printer-wrong-output.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00114",
+      "relevant_docs": [
+        "printer-paper-jam.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-paper-jam.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00197",
+      "relevant_docs": [
+        "epson-printer.md",
+        "escalation-procedure.md",
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00070",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "star-printer.md",
+        "printer-wrong-output.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00248",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "printer-paper-jam.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00154",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "pos-printer-integration.md",
+        "epson-printer.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00147",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00068",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "printer-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00221",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00316",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "epson-printer.md",
+        "printer-offline.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.75
+    },
+    {
+      "ticket_id": "INC-00227",
+      "relevant_docs": [
+        "epson-printer.md",
+        "network-devices-not-connecting.md",
+        "pos-printer-integration.md",
+        "printer-offline.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "epson-printer.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00133",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-offline.md",
+        "star-printer.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00058",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-paper-jam.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-paper-jam.md",
+        "printers-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00206",
+      "relevant_docs": [
+        "epson-printer.md",
+        "escalation-procedure.md",
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "epson-printer.md",
+        "printer-wrong-output.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00240",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "star-printer.md",
+        "printer-wrong-output.md"
+      ],
+      "hit": true,
+      "recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00226",
+      "relevant_docs": [
+        "printer-driver-reinstall.md",
+        "printer-wrong-output.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00102",
+      "relevant_docs": [
+        "printer-paper-jam.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "printer-paper-jam.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00234",
+      "relevant_docs": [
+        "kiosk-software-crash.md",
+        "kiosks-faq.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-software-crash.md",
+        "kiosks-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00041",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "star-printer.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00210",
+      "relevant_docs": [
+        "epson-printer.md",
+        "pos-printer-integration.md",
+        "printer-wrong-output.md",
+        "printers-faq.md"
+      ],
+      "retrieved_docs": [
+        "printer-wrong-output.md",
+        "pos-printer-integration.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00016",
+      "relevant_docs": [
+        "pos-printer-integration.md",
+        "printer-driver-reinstall.md",
+        "printer-offline.md",
+        "printers-faq.md",
+        "star-printer.md"
+      ],
+      "retrieved_docs": [
+        "star-printer.md",
+        "printer-offline.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00101",
+      "relevant_docs": [
+        "epson-printer.md",
+        "kiosk-payment-reader.md",
+        "kiosks-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-payment-reader.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00141",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "kiosk-frozen.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md",
+        "pos-screen-frozen.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "pos-screen-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.4
+    },
+    {
+      "ticket_id": "INC-00265",
+      "relevant_docs": [
+        "kiosk-frozen.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md",
+        "netlink-router.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-software-crash.md",
+        "kiosk-frozen.md",
+        "kiosks-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00062",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "foodtech-pos.md",
+        "kiosk-frozen.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-touchscreen.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00259",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "kiosk-payment-reader.md",
+        "kiosks-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-payment-reader.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00056",
+      "relevant_docs": [
+        "frostypro-soft-serve.md",
+        "kiosk-payment-reader.md",
+        "kiosks-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-payment-reader.md"
+      ],
+      "hit": true,
+      "recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00314",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "kiosk-software-crash.md",
+        "kiosks-faq.md",
+        "netlink-router.md",
+        "pos-startup-failure.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-software-crash.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00262",
+      "relevant_docs": [
+        "kiosk-frozen.md",
+        "kiosk-software-crash.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-software-crash.md",
+        "star-printer.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00163",
+      "relevant_docs": [
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md",
+        "netlink-router.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-touchscreen.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00100",
+      "relevant_docs": [
+        "kiosk-frozen.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-frozen.md",
+        "kiosks-faq.md"
+      ],
+      "hit": true,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00306",
+      "relevant_docs": [
+        "escalation-procedure.md",
+        "kiosk-frozen.md",
+        "kiosk-software-crash.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00094",
+      "relevant_docs": [
+        "kiosk-frozen.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-frozen.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00038",
+      "relevant_docs": [
+        "foodtech-pos.md",
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-touchscreen.md"
+      ],
+      "hit": true,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ticket_id": "INC-00257",
+      "relevant_docs": [
+        "kiosk-touchscreen.md",
+        "kiosks-faq.md"
+      ],
+      "retrieved_docs": [
+        "kiosk-touchscreen.md"
+      ],
+      "hit": true,
+      "recall": 0.5
+    }
+  ]
+}

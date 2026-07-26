@@ -1,8 +1,14 @@
 import os
-import streamlit as st
+import re
 import json
-import requests
+import time
+import datetime
 from pathlib import Path
+
+import requests
+import pandas as pd
+import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,946 +18,705 @@ INGESTION_URL = os.environ.get("INGESTION_URL", "http://localhost:8001")
 QUERY_URL = os.environ.get("QUERY_URL", "http://localhost:8002")
 ADMIN_URL = os.environ.get("ADMIN_URL", "http://localhost:8003")
 
-# We leave triage/resolve to point to 8000 for now if they are not containerized, 
-# but if they are, we could override them too. Let's just hardcode 8000 as before unless configured
-TICKET_URL = os.environ.get("TICKET_URL", "http://localhost:8000")
+PROJECT_ROOT = Path(__file__).parent.absolute()
+TICKETS_DIR = PROJECT_ROOT / "tickets" / "train"
+EVAL_RUNS_DIR = PROJECT_ROOT / "data" / "eval_runs"
+RAG_RESULTS_CSV = PROJECT_ROOT / "RAG_Results" / "Rag_result.csv"
+LATENCY_RESULT_CSV = PROJECT_ROOT / "RAG_Results" / "Latency_result.csv"
+LATENCY_DETAILS_CSV = PROJECT_ROOT / "RAG_Results" / "Latency_details.csv"
+ARCH_DIAGRAM_PATH = PROJECT_ROOT / "design_md" / "system_architecture.html"
+LABELS_PATH = PROJECT_ROOT / "labels" / "train_labels.json"
+TRAIN_INDEX_CSV = PROJECT_ROOT / "tickets" / "train_index.csv"
+
+ROUTING_STYLE = {
+    "L1_GUIDED": ("l1", "🟢 L1 — Guided Resolution"),
+    "L2_ESCALATION": ("l2", "🟠 L2 — Escalation"),
+    "NON_IT": ("nonit", "⚪ Non-IT — Routed Out"),
+    "ERROR": ("l2", "🔴 Error"),
+}
+
+TOOL_ICONS = {
+    "search_knowledge_base": "🔍",
+    "search_faq": "❓",
+    "get_system_spec": "📋",
+    "get_asset_info": "🖥️",
+    "get_store_info": "🏬",
+    "check_sla": "⏱️",
+    "reply_to_user": "💬",
+    "resolve_ticket": "✅",
+    "escalate_to_l2": "🚨",
+}
+
 
 def to_container_path(host_path: str) -> str:
-    """Converts a host path to the corresponding container path."""
-    from pathlib import Path
-    project_dir = str(Path(__file__).parent.absolute())
-    if host_path.startswith(project_dir):
-        return host_path.replace(project_dir, "/app", 1)
-    return host_path
+    """FastAPI services run in Docker with the repo mounted at /app."""
+    p = str(Path(host_path).absolute())
+    if p.startswith(str(PROJECT_ROOT)):
+        return p.replace(str(PROJECT_ROOT), "/app", 1)
+    return p
 
-if 'ticket_directory' not in st.session_state:
-    st.session_state.ticket_directory = "/app/tickets/train"
 
-st.set_page_config(page_title="ServeWell IT Agent POC", layout="wide")
-
-st.title("ServeWell Agentic IT Support")
-st.markdown("A proof-of-concept L1 support system built on the phData Intelligence Platform.")
-
-def select_folder_via_tk():
-    """Open system folder picker using OS-specific commands without blocking Streamlit.
-    On macOS, uses AppleScript via `osascript`. Falls back to Tkinter on other platforms.
-    Returns the selected folder path as a string, or ``None`` if cancelled or on error.
-    """
-    import sys, subprocess
+def check_health(url: str) -> bool:
     try:
-        if sys.platform == "darwin":
-            # AppleScript chooser returns POSIX path with a trailing newline
-            result = subprocess.run(
-                ["osascript", "-e", "POSIX path of (choose folder)"],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            path = result.stdout.strip()
-            return path if path else None
-        else:
-            # Fallback to Tkinter for Windows / Linux
-            import tkinter as tk
-            from tkinter import filedialog
-            root = tk.Tk()
-            root.withdraw()
-            root.wm_attributes('-topmost', 1)
-            folder_selected = filedialog.askdirectory(master=root)
-            root.destroy()
-            return folder_selected if folder_selected else None
+        return requests.get(f"{url}/docs", timeout=2).status_code == 200
     except Exception:
-        return None
+        return False
 
-def load_tickets_from_dir(directory_path):
-    """Recursively loads all JSON tickets from the given directory and its subdirectories into memory dicts."""
-    target_dir = Path(directory_path)
-    loaded_data = {}
-    loaded_raw = {}
-    errors = []
 
-    if target_dir.exists() and target_dir.is_dir():
-        # Use rglob to find JSON files in all nested subdirectories
-        json_files = sorted(list(target_dir.rglob("*.json")))
-        for fpath in json_files:
-            ticket_id = fpath.stem
-            try:
-                content = None
-                try:
-                    with open(fpath, 'r', encoding='utf-8') as f:
-                        content = f.read()
-                except OSError as e:
-                    # Handle Docker volume deadlock or similar read errors
-                    if getattr(e, 'errno', None) == 35:
-                        import subprocess
-                        content = subprocess.check_output(["cat", str(fpath)]).decode("utf-8")
-                    else:
-                        raise e
+def timed_post(url: str, payload: dict, timeout: int):
+    """POST and return (response_json, elapsed_seconds). Raises on HTTP/network errors."""
+    start = time.perf_counter()
+    res = requests.post(url, json=payload, timeout=timeout)
+    elapsed = time.perf_counter() - start
+    res.raise_for_status()
+    return res.json(), elapsed
 
-                if content:
-                    parsed = json.loads(content)
-                    loaded_data[ticket_id] = parsed
-                    loaded_raw[ticket_id] = content
-            except Exception as ex:
-                errors.append(f"{fpath.name}: {ex}")
-                
-    return loaded_data, loaded_raw, errors
 
-if hasattr(st, "dialog"):
-    @st.dialog("📂 Directory Browser", width="large")
-    def render_directory_picker_dialog(target_key):
-        st.markdown("Navigate to select a directory, or open your system file picker.")
-        
-        current_val = st.session_state.get(target_key, "./")
-        if "picker_current_dir" not in st.session_state:
-            try:
-                p = Path(current_val).resolve()
-                if p.exists() and p.is_dir():
-                    st.session_state.picker_current_dir = str(p)
-                else:
-                    st.session_state.picker_current_dir = str(Path.cwd())
-            except Exception:
-                st.session_state.picker_current_dir = str(Path.cwd())
+def list_sample_tickets():
+    if not TICKETS_DIR.exists():
+        return []
+    return sorted({f.stem for f in TICKETS_DIR.glob("*.json")})
 
-        curr_path = Path(st.session_state.picker_current_dir)
 
-        # Quick Navigation & OS Dialog Action Bar
-        col_tk, col_up, col_home = st.columns([2, 1, 1])
-        with col_tk:
-            if st.button("🖥️ System Folder Picker", help="Open native macOS Finder / Windows File Explorer", use_container_width=True):
-                folder = select_folder_via_tk()
-                if folder:
-                    st.session_state[target_key] = folder
-                    if "show_picker_for" in st.session_state:
-                        del st.session_state["show_picker_for"]
-                    if "picker_current_dir" in st.session_state:
-                        del st.session_state["picker_current_dir"]
-                    st.rerun()
-        with col_up:
-            if st.button("⬆️ Up Level", disabled=(curr_path.parent == curr_path), use_container_width=True):
-                st.session_state.picker_current_dir = str(curr_path.parent)
-                st.rerun()
-        with col_home:
-            if st.button("🏠 Project Root", use_container_width=True):
-                st.session_state.picker_current_dir = str(Path.cwd())
-                st.rerun()
+@st.cache_data
+def load_labels() -> dict:
+    """LLM-generated labels (relevant_kb_docs, correct_routing, ...) -- a
+    labeling aid, not officially verified. Only relevant_kb_docs (used for
+    retrieval eval) should be treated as load-bearing; correct_routing
+    disagrees with the official escalation_flag on ~48% of tickets."""
+    if not LABELS_PATH.exists():
+        return {}
+    return {x["ticket_id"]: x for x in json.loads(LABELS_PATH.read_text())}
 
-        st.caption(f"📁 **Current Location:** `{curr_path.absolute()}`")
 
-        # Subdirectories listing
-        subdirs = []
-        file_count = 0
-        md_count = 0
-        json_count = 0
-        try:
-            if curr_path.exists() and curr_path.is_dir():
-                for item in curr_path.iterdir():
-                    if item.name.startswith("."):
-                        continue
-                    if item.is_dir():
-                        subdirs.append(item)
-                    elif item.is_file():
-                        file_count += 1
-                        if item.suffix.lower() == ".md":
-                            md_count += 1
-                        elif item.suffix.lower() == ".json":
-                            json_count += 1
-            subdirs.sort(key=lambda x: x.name.lower())
-        except Exception as e:
-            st.error(f"Error accessing directory: {e}")
+@st.cache_data
+def load_train_index() -> dict:
+    """Official ground truth provided with the challenge."""
+    if not TRAIN_INDEX_CSV.exists():
+        return {}
+    df = pd.read_csv(TRAIN_INDEX_CSV)
+    return {row["ticket_id"]: bool(row["escalation_flag"]) for _, row in df.iterrows()}
 
-        st.markdown(f"**Subfolders in `{curr_path.name or '/'}`** ({len(subdirs)} found):")
-        
-        if subdirs:
-            dir_names = [f"📁 {d.name}" for d in subdirs]
-            col_sel, col_open = st.columns([3, 1])
-            with col_sel:
-                selected_dir_name = st.selectbox(
-                    "Subfolders", 
-                    dir_names, 
-                    label_visibility="collapsed",
-                    key="picker_subfolder_select"
-                )
-            with col_open:
-                if st.button("Open ➡️", use_container_width=True):
-                    idx = dir_names.index(selected_dir_name)
-                    st.session_state.picker_current_dir = str(subdirs[idx])
-                    st.rerun()
-        else:
-            st.info("No subdirectories here.")
 
-        st.caption(f"📊 Folder stats: {file_count} files ({md_count} `.md` files, {json_count} `.json` files)")
+def extract_sources(trace: list) -> list[str]:
+    sources = []
+    for step in trace:
+        if step.get("type") == "tool_result":
+            sources.extend(re.findall(r"--- Document Source: (.+?) ---", step.get("result", "")))
+    return list(dict.fromkeys(sources))
 
-        st.divider()
 
-        col_select, col_cancel = st.columns([1, 1])
-        with col_select:
-            if st.button("✅ Select This Directory", type="primary", use_container_width=True):
-                st.session_state[target_key] = str(curr_path.absolute())
-                if "show_picker_for" in st.session_state:
-                    del st.session_state["show_picker_for"]
-                if "picker_current_dir" in st.session_state:
-                    del st.session_state["picker_current_dir"]
-                st.rerun()
-        with col_cancel:
-            if st.button("❌ Cancel", use_container_width=True):
-                if "show_picker_for" in st.session_state:
-                    del st.session_state["show_picker_for"]
-                if "picker_current_dir" in st.session_state:
-                    del st.session_state["picker_current_dir"]
-                st.rerun()
+def read_ticket_json(ticket_id: str) -> str:
+    return (TICKETS_DIR / f"{ticket_id}.json").read_text()
 
-tab_tickets, tab_kb, tab_faiss = st.tabs(["Ticket Processing", "Knowledge Base Management", "PGVector Database"])
 
-with tab_kb:
-    st.header("Knowledge Base Ingestion")
-    
-    if 'kb_directory' not in st.session_state:
-        st.session_state.kb_directory = "./kb"
+def build_latency_rows(state: dict) -> list[dict]:
+    """Component-level timing: each retrieval call and each LLM call the
+    backend measured, from agent_core/llm_client.py's per-step instrumentation."""
+    rows = []
+    for t in state.get("triage_timing", []):
+        rows.append({"Step": t["step"], "Type": "LLM", "Duration (s)": round(t["duration_s"], 2), "Size (chars)": ""})
+    for step in state.get("trace", []):
+        if step.get("type") == "tool_result" and "duration_s" in step:
+            rows.append({
+                "Step": step["name"], "Type": "Retrieval/Tool",
+                "Duration (s)": round(step["duration_s"], 2),
+                "Size (chars)": step.get("result_chars", ""),
+            })
+        elif step.get("type") == "llm_call":
+            rows.append({
+                "Step": f"LLM reasoning (turn {step['loop']})", "Type": "LLM",
+                "Duration (s)": round(step["duration_s"], 2),
+                "Size (chars)": step.get("prompt_chars", ""),
+            })
+    return rows
 
-    st.subheader("Select Directory for Ingestion")
-    if "ingestion_success" in st.session_state:
-        st.success(st.session_state.ingestion_success)
-        del st.session_state.ingestion_success
-        
-    col_input, col_browse = st.columns([4, 1])
-    with col_input:
-        st.text_input(
-            "Enter the path to the knowledge base directory:",
-            key="kb_directory"
-        )
-    with col_browse:
-        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        if st.button("📁 Browse...", key="browse_kb_btn", use_container_width=True):
-            render_directory_picker_dialog("kb_directory")
-    target_dir = st.session_state.kb_directory
-    target_path = Path(target_dir)
-    if target_path.exists() and target_path.is_dir():
-        md_count = len(list(target_path.rglob("*.md")))
-        st.success(f"Found {md_count} markdown (.md) files in `{target_dir}` and its subdirectories.")
+
+def build_demo_ticket(subject, description, priority, category, subcategory, store_id, asset_id):
+    ticket_id = "DEMO-" + datetime.datetime.now().strftime("%H%M%S")
+    ticket = {
+        "ticket_id": ticket_id,
+        "store_id": store_id or "SW-DEMO",
+        "priority": priority,
+        "category": category or "General",
+        "subcategory": subcategory or "",
+        "subject": subject,
+        "description": description,
+        "asset_id": asset_id or "",
+        "escalation_flag": False,
+        "tags": [],
+    }
+    return ticket_id, json.dumps(ticket, indent=2)
+
+
+def classify_status(final_resp: str) -> str:
+    """Determine outcome from the agent's final response text, checked in
+    priority order so a failure mode never gets mistaken for a success."""
+    if final_resp == "Error" or final_resp.startswith("Error"):
+        return "escalated"
+    if "reached maximum iterations" in final_resp.lower():
+        return "escalated"
+    if "escalated" in final_resp.lower():
+        return "escalated"
+    if "?" in final_resp or "let me know" in final_resp.lower():
+        return "awaiting_user"
+    return "resolved"
+
+
+def analyze_guardrails(trace):
+    """Rule-based, transparent re-check of the guardrails the agent's system
+    prompt claims to enforce — computed independently from the trace so the
+    UI isn't just trusting the agent's own narration."""
+    checks = []
+    search_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") == "search_knowledge_base"]
+    search_results = [s for s in trace if s.get("type") == "tool_result" and s.get("name") == "search_knowledge_base"]
+    action_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") in ("reply_to_user", "resolve_ticket", "escalate_to_l2")]
+    reply_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") == "reply_to_user"]
+    escalate_calls = [s for s in trace if s.get("type") == "tool_call" and s.get("name") == "escalate_to_l2"]
+
+    if action_calls and search_calls:
+        grounded = trace.index(search_calls[0]) < trace.index(action_calls[0])
     else:
-        st.error("The selected directory does not exist.")
+        grounded = bool(search_calls)
+    checks.append((grounded, "Searched the knowledge base before taking any action" if grounded
+                   else "No knowledge-base search occurred before acting — grounding guardrail bypassed"))
 
-    if st.button("Preview Ingestion", help="Parses the target directory and shows a preview without generating embeddings."):
-        with st.status(f"Parsing '{target_dir}'...", expanded=True) as preview_status:
-            target_path = Path(target_dir)
-            md_files = list(target_path.rglob("*.md"))
-            
-            st.write(f"🔍 Discovered {len(md_files)} Markdown files.")
+    if len(search_calls) > 2:
+        checks.append((False, f"Called search_knowledge_base {len(search_calls)} times — exceeds the 2-attempt cap"))
 
-            st.write("⚙️ Connecting to ingestion backend to chunk documents...")
-            try:
-                res = requests.post(f"{INGESTION_URL}/preview", json={"directory": to_container_path(target_dir)})
-                res.raise_for_status()
-                st.session_state.preview_data = res.json()
-                preview_status.update(label="Parsing Complete!", state="complete")
-            except Exception as e:
-                preview_status.update(label="Failed to parse directory", state="error")
-                st.error(f"Error: {e}")
+    if escalate_calls:
+        empty_searches = sum(1 for s in search_results if "No relevant documents found" in s.get("result", ""))
+        if empty_searches >= 2:
+            checks.append((True, f"Escalated after {empty_searches} empty knowledge-base search(es)"))
+        elif len(reply_calls) >= 2:
+            checks.append((True, f"Escalated after {len(reply_calls)} troubleshooting attempt(s) with the user"))
+        else:
+            checks.append((False, "Escalated without 2 empty searches or 2 troubleshooting replies — escalation guardrail may have been bypassed"))
 
-    if "preview_data" in st.session_state:
-        st.divider()
-        st.subheader("📊 Preview Results")
-        p_data = st.session_state.preview_data
-        
-        # Display Metrics
-        met1, met2, met3 = st.columns(3)
-        met1.metric(label="Total Chunks", value=p_data.get('total_chunks', 0))
-        met2.metric(label="Categories", value=len(p_data.get('categories', [])))
-        met3.metric(label="Status", value="Ready to Embed")
-        
-        st.write(f"**Included Categories**: `{', '.join(p_data.get('categories', []))}`")
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        import pandas as pd
-        def clean_str(val):
-            if not val:
-                return ""
-            return str(val).replace("\r\n", " ↵ ").replace("\r", " ↵ ").replace("\n", " ↵ ").replace("\t", "    ")
+    return checks
 
-        try:
-            with st.expander("📁 Browse Chunks by Category", expanded=True):
-                categories = list(p_data.get("samples", {}).keys())
-                if categories:
-                    col1, col2 = st.columns([2, 1])
-                    with col1:
-                        selected_cat = st.selectbox("Select category to preview:", categories, key="selected_cat_preview")
-                    
-                    samples = p_data.get("samples", {}).get(selected_cat, [])
-                    chunks_per_page = 5
-                    total_pages = (len(samples) - 1) // chunks_per_page + 1
-                    
-                    with col2:
-                        page = st.number_input("Page:", min_value=1, max_value=max(1, total_pages), step=1, value=1, key="preview_page_number")
-                    
-                    start_idx = (page - 1) * chunks_per_page
-                    end_idx = start_idx + chunks_per_page
-                    page_samples = samples[start_idx:end_idx]
-                    
-                    st.write(f"Showing chunks {start_idx + 1} to {min(end_idx, len(samples))} of **{len(samples)}** in **{selected_cat}**:")
-                    
-                    if page_samples:
-                        df = pd.DataFrame([{
-                            "File": clean_str(s["metadata"].get("file_name", "")),
-                            "Section": clean_str(s["metadata"].get("section_title", "No Title") or "No Title"),
-                            "Type": clean_str(s["metadata"].get("section_type", "")),
-                            "Content": clean_str(s["content"])[:300] + ("..." if len(str(s["content"])) > 300 else "")
-                        } for s in page_samples])
-                        st.table(df)
-                    else:
-                        st.write("No chunks on this page.")
+
+def render_trace(trace):
+    for step in trace:
+        step_type = step.get("type")
+        if step_type == "tool_call":
+            name = step.get("name")
+            icon = TOOL_ICONS.get(name, "🛠️")
+            st.markdown(f"**{icon} `{name}`**")
+            args = {k: v for k, v in step.get("args", {}).items() if k != "message"}
+            if args:
+                st.caption(", ".join(f"{k}={v}" for k, v in args.items()))
+        elif step_type == "tool_result":
+            name = step.get("name")
+            result = step.get("result", "")
+            if name in ("search_knowledge_base", "search_faq", "get_system_spec"):
+                sources = list(dict.fromkeys(re.findall(r"--- Document Source: (.+?) ---", result)))
+                if sources:
+                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;📄 Retrieved: " + " · ".join(f"`{s}`" for s in sources))
+                    with st.expander("View retrieved content", expanded=False):
+                        st.text(result)
                 else:
-                    st.write("No categories found.")
-                        
-                # Detailed chunk inspector
-                all_flat_samples = []
-                for category, samples in p_data.get("samples", {}).items():
-                    for s in samples:
-                        all_flat_samples.append(s)
-                
-                if all_flat_samples:
-                    st.markdown("---")
-                    st.subheader("🔍 Full Chunk Inspector")
-                    st.info("Select any chunk from the dropdown below to view its complete, untruncated content and metadata.")
-                    
-                    search_query = st.text_input("Filter chunks by keyword (searches File, Section, and Content):", "", key="search_query_input").strip().lower()
-                    
-                    filtered_indices = []
-                    for idx, s in enumerate(all_flat_samples):
-                        file_name = s['metadata'].get('file_name', '').lower()
-                        section_title = s['metadata'].get('section_title', 'No Title').lower()
-                        content = s.get('content', '').lower()
-                        
-                        if not search_query or search_query in file_name or search_query in section_title or search_query in content:
-                            filtered_indices.append(idx)
-                    
-                    if filtered_indices:
-                        chunk_options = [
-                            f"[{all_flat_samples[idx]['metadata'].get('file_name', '')}] {all_flat_samples[idx]['metadata'].get('section_title', 'No Title')} (Chunk {idx})"
-                            for idx in filtered_indices
-                        ]
-                        
-                        selected_filtered_idx = st.selectbox(
-                            "Choose a chunk to inspect:",
-                            range(len(filtered_indices)),
-                            format_func=lambda x: chunk_options[x],
-                            key="selected_chunk_inspect"
-                        )
-                        
-                        selected_chunk = all_flat_samples[filtered_indices[selected_filtered_idx]]
-                        col_content, col_meta = st.columns([2, 1])
-                        with col_content:
-                            st.markdown("**📝 Raw Content**")
-                            st.text_area("Content", value=selected_chunk["content"], height=300, label_visibility="collapsed")
-                        with col_meta:
-                            st.markdown("**🏷️ Metadata**")
-                            st.json(selected_chunk["metadata"])
-                    else:
-                        st.warning("No chunks matched your search query.")
-        except Exception as e:
-            import traceback
-            st.error(f"UI Rendering Error: {e}")
-            st.code(traceback.format_exc())
+                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;⚠️ No relevant documents found")
+            else:
+                with st.expander(f"Result of `{name}`", expanded=False):
+                    st.code(result)
+        elif step_type == "reasoning":
+            text = (step.get("text") or "").strip()
+            if text:
+                st.markdown(f"> 🧠 {text}")
 
-        if st.button("✅ Confirm & Generate Embeddings", type="primary"):
-            with st.status(f"Training Vector DB from '{target_dir}'...", expanded=True) as train_status:
-                st.write("Generating embeddings...")
-                try:
-                    res = requests.post(f"{INGESTION_URL}/ingest", json={"directory": to_container_path(target_dir)})
-                    res.raise_for_status()
-                    data = res.json()
-                    st.write(data.get("message", "Ingestion successful."))
-                    train_status.update(label="Training Complete!", state="complete")
-                    
-                    # Set success message to persist after rerun
-                    st.session_state.ingestion_success = f"✅ Success! {data.get('message', 'Vector database embeddings generated and indexed successfully.')}"
-                    
-                    del st.session_state["preview_data"]
-                    st.rerun()
-                except Exception as e:
-                    train_status.update(label="Failed to train vector db", state="error")
-                    st.error(f"Error: {e}")
-                    
-        st.write("---")
-        st.subheader("Index Maintenance")
-        if st.button("🔄 Rebuild Main Index", help="Merge all Delta ingestion updates into the Main HNSW graph."):
-            with st.status("Rebuilding Main Index...", expanded=True) as rebuild_status:
-                try:
-                    res = requests.post(f"{INGESTION_URL}/rebuild_main_index")
-                    res.raise_for_status()
-                    data = res.json()
-                    st.write(data.get("message", "Rebuild successful."))
-                    rebuild_status.update(label="Rebuild Complete!", state="complete")
-                except Exception as e:
-                    rebuild_status.update(label="Failed to rebuild index", state="error")
-                    st.error(f"Error: {e}")
 
-with tab_tickets:
-    st.header("Ticket Processing")
-    
-    if 'ticket_directory' not in st.session_state:
-        st.session_state.ticket_directory = "./tickets/train"
+st.set_page_config(page_title="ServeWell IT Support Agent", layout="wide", page_icon="🛠️")
 
-    st.subheader("1. Ticket Source")
-    col_input, col_browse, col_load, col_ingest = st.columns([3, 1, 1, 1])
-    with col_input:
-        st.text_input(
-            "Enter the path to the tickets directory:", 
-            key="ticket_directory"
-        )
-    with col_browse:
-        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        if st.button("📁 Browse...", key="browse_ticket_btn", use_container_width=True):
-            render_directory_picker_dialog("ticket_directory")
-    with col_load:
-        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        if st.button("📥 Load Tickets", key="load_tickets_btn", type="primary", use_container_width=True):
-            with st.spinner(f"Loading tickets from `{st.session_state.ticket_directory}` into memory..."):
-                t_data, t_raw, errs = load_tickets_from_dir(st.session_state.ticket_directory)
-                st.session_state.loaded_tickets = t_data
-                st.session_state.loaded_tickets_raw = t_raw
-                st.session_state.loaded_tickets_dir = st.session_state.ticket_directory
-                if errs:
-                    st.warning(f"Loaded {len(t_data)} tickets into memory ({len(errs)} failed).")
-                else:
-                    st.success(f"Successfully loaded {len(t_data)} tickets into memory!")
-    with col_ingest:
-        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        if st.button("✅ Ingest Tickets", key="ingest_tickets_btn", type="secondary", use_container_width=True, help="Ingest JSON tickets into the Vector Database"):
-            with st.status(f"Ingesting tickets from '{st.session_state.ticket_directory}'...", expanded=True) as train_status:
-                try:
-                    res = requests.post(f"{INGESTION_URL}/ingest", json={"directory": to_container_path(st.session_state.ticket_directory)})
-                    res.raise_for_status()
-                    data = res.json()
-                    st.write(data.get("message", "Ingestion successful."))
-                    train_status.update(label="Ingestion Complete!", state="complete")
-                except Exception as e:
-                    train_status.update(label="Failed to ingest tickets", state="error")
-                    st.error(f"Error: {e}")
-    
-    TRAIN_TICKETS_DIR = Path(st.session_state.ticket_directory)
-    
-    if (st.session_state.get('loaded_tickets') is not None and 
-        st.session_state.get('loaded_tickets_dir') == st.session_state.ticket_directory):
-        ticket_ids = sorted(list(st.session_state.loaded_tickets.keys()))
-        st.info(f"⚡ **Memory Cache Active:** {len(ticket_ids)} tickets loaded in memory from `{st.session_state.loaded_tickets_dir}`")
+st.markdown("""
+<style>
+.pill { display:inline-block; padding:4px 12px; border-radius:999px; font-weight:600; font-size:0.85rem; }
+.pill-l1 { background:#E1F3E7; color:#1E8F5F; }
+.pill-l2 { background:#F8E9DC; color:#C0632A; }
+.pill-nonit { background:#E9E7F1; color:#6E6A86; }
+.health-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.health-up { background:#1E8F5F; } .health-down { background:#B23B32; }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("🛠️ ServeWell Agentic IT Support")
+st.caption("Triage + Resolution agents over a reranked RAG pipeline, with grounding and escalation guardrails.")
+
+health = {
+    "API": check_health(API_URL),
+    "Ingestion": check_health(INGESTION_URL),
+    "Query": check_health(QUERY_URL),
+    "Admin": check_health(ADMIN_URL),
+}
+st.markdown(" &nbsp;·&nbsp; ".join(
+    f'<span class="health-dot {"health-up" if ok else "health-down"}"></span>{name}'
+    for name, ok in health.items()
+), unsafe_allow_html=True)
+
+tab_demo, tab_eval, tab_latency, tab_arch, tab_admin = st.tabs(["🚀 Live Demo", "📊 Evaluation", "⏱️ Latency", "🏗️ Architecture & KB", "⚙️ Admin"])
+
+# ============================================================ LIVE DEMO ====
+with tab_demo:
+    st.subheader("Run a ticket through the agent")
+    source = st.radio("Ticket source", ["Sample ticket", "New ticket (type your own)"], horizontal=True, label_visibility="collapsed")
+
+    ticket_id, ticket_json = None, None
+
+    if source == "Sample ticket":
+        sample_ids = list_sample_tickets()
+        if not sample_ids:
+            st.warning(f"No sample tickets found in `{TICKETS_DIR}`.")
+        else:
+            ticket_id = st.selectbox("Choose a ticket", sample_ids, key="demo_sample_ticket")
+            if ticket_id:
+                ticket_json = read_ticket_json(ticket_id)
+                data = json.loads(ticket_json)
+                st.info(f"**{data.get('subject', '')}**\n\n{data.get('description', '')}")
+                with st.expander("Raw ticket JSON"):
+                    st.json(data)
     else:
-        def get_available_ticket_ids(directory_path):
-            if directory_path.exists() and directory_path.is_dir():
-                return sorted([f.stem for f in directory_path.rglob("*.json")])
-            return []
-        ticket_ids = get_available_ticket_ids(TRAIN_TICKETS_DIR)
-    
-    st.divider()
-    
-    ticket_step = st.radio(
-        "2. Select Action:",
-        ["Inspect Individual Ticket", "Process Individual Ticket", "Batch Process Tickets", "View Processed History"],
-        horizontal=True
-    )
-    
-    st.divider()
+        with st.form("new_ticket_form"):
+            c1, c2 = st.columns(2)
+            with c1:
+                subject = st.text_input("Subject", placeholder="e.g. Kiosk touchscreen unresponsive")
+                priority = st.selectbox("Priority", ["P1", "P2", "P3", "P4"], index=2)
+                category = st.text_input("Category", placeholder="e.g. Kiosks")
+            with c2:
+                store_id = st.text_input("Store ID", placeholder="SW-0023")
+                asset_id = st.text_input("Asset ID (optional)")
+                subcategory = st.text_input("Subcategory (optional)")
+            description = st.text_area("Description", placeholder="Describe the issue as the store reported it...")
+            if st.form_submit_button("Use this ticket", type="primary"):
+                if not subject or not description:
+                    st.error("Subject and description are required.")
+                else:
+                    new_id, new_json = build_demo_ticket(subject, description, priority, category, subcategory, store_id, asset_id)
+                    st.session_state["demo_new_ticket_id"] = new_id
+                    st.session_state["demo_new_ticket_json"] = new_json
 
-    if ticket_step == "Inspect Individual Ticket":
-        st.subheader("Inspect Individual Tickets")
-        if not ticket_ids:
-            st.warning(f"No JSON tickets found in `{TRAIN_TICKETS_DIR}`")
-        else:
-            st.info(f"Found {len(ticket_ids)} tickets in `{TRAIN_TICKETS_DIR}`")
-        
-        inspect_ticket_id = st.selectbox(
-            "Select a specific ticket to view its contents:",
-            options=ticket_ids,
-            key="inspect_ticket_selectbox"
-        )
-        
-        if inspect_ticket_id:
-            try:
-                inspect_data = None
-                if (st.session_state.get("loaded_tickets") and 
-                    inspect_ticket_id in st.session_state.loaded_tickets):
-                    inspect_data = st.session_state.loaded_tickets[inspect_ticket_id]
-                else:
-                    found = list(TRAIN_TICKETS_DIR.rglob(f"{inspect_ticket_id}.json"))
-                    if not found:
-                        raise FileNotFoundError(f"Ticket {inspect_ticket_id}.json not found in {TRAIN_TICKETS_DIR}")
-                    ticket_path = found[0]
-                    try:
-                        with open(ticket_path, 'r') as f:
-                            inspect_content = f.read()
-                            inspect_data = json.loads(inspect_content)
-                    except OSError as e:
-                        if e.errno == 35:
-                            import subprocess
-                            try:
-                                inspect_content = subprocess.check_output(["cat", str(ticket_path)]).decode("utf-8")
-                                inspect_data = json.loads(inspect_content)
-                            except subprocess.CalledProcessError:
-                                st.error(f"Failed to read ticket {inspect_ticket_id} due to Docker volume deadlock.")
-                                st.stop()
-                        else:
-                            raise e
-                
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    st.markdown(f"**ID:** {inspect_data.get('ticket_id')}")
-                    st.markdown(f"**Priority:** {inspect_data.get('priority')} | **Category:** {inspect_data.get('category')}")
-                with col2:
-                    st.markdown(f"**Subject:** {inspect_data.get('subject')}")
-                    st.markdown(f"**Asset ID:** {inspect_data.get('asset_id')}")
-                
-                with st.expander("View Raw JSON"):
-                    st.json(inspect_data)
-            except Exception as e:
-                st.error(f"Could not load ticket {inspect_ticket_id}: {e}")
-                
-    elif ticket_step == "Process Individual Ticket":
-        st.subheader("Process Individual Ticket")
-        if not ticket_ids:
-            st.warning(f"No JSON tickets found in `{TRAIN_TICKETS_DIR}`")
-        else:
-            process_ticket_id = st.selectbox(
-                "Select a specific ticket to process:",
-                options=ticket_ids,
-                key="process_ticket_selectbox"
-            )
-            
-            if process_ticket_id:
-                ticket_json = None
-                if (st.session_state.get("loaded_tickets_raw") and 
-                    process_ticket_id in st.session_state.loaded_tickets_raw):
-                    ticket_json = st.session_state.loaded_tickets_raw[process_ticket_id]
-                else:
-                    found = list(TRAIN_TICKETS_DIR.rglob(f"{process_ticket_id}.json"))
-                    if found:
-                        ticket_path = found[0]
-                        try:
-                            with open(ticket_path, 'r') as f:
-                                ticket_json = f.read()
-                        except OSError as e:
-                            if e.errno == 35:
-                                import subprocess
-                                try:
-                                    ticket_json = subprocess.check_output(["cat", str(ticket_path)]).decode("utf-8")
-                                except subprocess.CalledProcessError:
-                                    st.error("Failed to read ticket due to Docker volume deadlock.")
-                                    st.stop()
-                            else:
-                                raise e
-                    else:
-                        st.error(f"Ticket {process_ticket_id}.json not found in {TRAIN_TICKETS_DIR}")
-                        st.stop()
-                
+        if st.session_state.get("demo_new_ticket_json"):
+            ticket_id = st.session_state["demo_new_ticket_id"]
+            ticket_json = st.session_state["demo_new_ticket_json"]
+            st.success(f"Ready: **{ticket_id}**")
+            with st.expander("Ticket JSON that will be sent"):
+                st.code(ticket_json, language="json")
+
+    if ticket_id and ticket_json:
+        state_key = f"demo_state_{ticket_id}"
+        if state_key not in st.session_state:
+            st.session_state[state_key] = {"started": False, "chat_history": [], "trace": [], "routing": "", "reasoning": "", "status": "", "triage_time": None, "triage_timing": []}
+        state = st.session_state[state_key]
+
+        col_run, col_reset = st.columns([1, 5])
+        with col_run:
+            run_clicked = st.button("▶️ Run Agent", type="primary", disabled=state["started"], key=f"run_{ticket_id}")
+        with col_reset:
+            if state["started"] and st.button("↺ Reset", key=f"reset_{ticket_id}"):
+                del st.session_state[state_key]
+                st.rerun()
+
+        if run_clicked and not state["started"]:
+            state["started"] = True
+            with st.spinner("Triaging ticket..."):
                 try:
-                    ticket_data = json.loads(ticket_json)
-                    st.info(f"**Subject:** {ticket_data.get('subject', 'N/A')}\n\n**Description:** {ticket_data.get('description', 'N/A')}")
+                    triage_result, state["triage_time"] = timed_post(f"{API_URL}/triage", {"ticket_json": ticket_json}, timeout=120)
                 except Exception as e:
-                    st.warning(f"Could not parse ticket JSON: {e}")
+                    triage_result, state["triage_time"] = {"routing": "ERROR", "reasoning": str(e)}, None
+            state["routing"] = triage_result.get("routing", "ERROR")
+            state["reasoning"] = triage_result.get("reasoning", "")
+            state["triage_timing"] = triage_result.get("timing", [])
 
-                state_key = f"ticket_state_{process_ticket_id}"
-                if state_key not in st.session_state:
-                    st.session_state[state_key] = {
-                        "started": False,
-                        "chat_history": [],
-                        "trace": [],
-                        "routing": "",
-                        "reasoning": "",
-                        "status": "" 
-                    }
-                
-                state = st.session_state[state_key]
-                
-                if not state["started"]:
-                    if st.button("Process Ticket", type="primary", key="process_single"):
-                        state["started"] = True
-                        try:
-                            with st.status(f"Processing Ticket {process_ticket_id}..."):
-                                st.write("Triaging ticket...")
-                                res = requests.post(f"{TICKET_URL}/triage", json={"ticket_json": ticket_json})
-                                res.raise_for_status()
-                                triage_result = res.json()
-                                state["routing"] = triage_result.get('routing', 'ERROR')
-                                state["reasoning"] = triage_result.get('reasoning', 'No reasoning provided.')
-                                
-                                if state["routing"] == "L1_GUIDED":
-                                    st.write("Resolving ticket (L1_GUIDED)...")
-                                    res = requests.post(f"{TICKET_URL}/resolve", json={"ticket_json": ticket_json, "chat_history": state["chat_history"]})
-                                    res.raise_for_status()
-                                    resolve_result = res.json()
-                                    final_resp = resolve_result.get("final_response", "Error")
-                                    
-                                    state["chat_history"].append({"role": "assistant", "content": final_resp})
-                                    state["trace"].extend(resolve_result.get("trace", []))
-                                    
-                                    if "Escalated" in final_resp or "Error" in final_resp:
-                                        state["status"] = "escalated"
-                                    elif "Please attempt" in final_resp or "let me know" in final_resp or "?" in final_resp:
-                                        state["status"] = "awaiting_user"
-                                    else:
-                                        state["status"] = "resolved"
-                                        
-                                    st.rerun()
-                                else:
-                                    state["status"] = "resolved"
-                                    st.rerun()
-                        except Exception as e:
-                            st.error(f"Error processing ticket {process_ticket_id}: {e}")
-                else:
-                    st.markdown(f"**Routing:** `{state['routing']}`")
-                    st.markdown(f"**Reasoning:** {state['reasoning']}")
-                    
-                    if state["routing"] == "L1_GUIDED":
-                        st.markdown("### Conversation")
-                        
-                        for msg in state["chat_history"]:
-                            with st.chat_message(msg["role"]):
-                                st.write(msg["content"])
-                                
-                        if state["status"] == "awaiting_user":
-                            col1, col2 = st.columns([3, 1])
-                            with col2:
-                                if st.button("Close Ticket (Resolved)", use_container_width=True):
-                                    state["status"] = "resolved"
-                                    try:
-                                        history_payload = {
-                                            "ticket_id": process_ticket_id,
-                                            "subject": ticket_data.get('subject', 'N/A') if 'ticket_data' in locals() else 'N/A',
-                                            "routing": state["routing"],
-                                            "reasoning": state["reasoning"],
-                                            "resolution": "Closed by user."
-                                        }
-                                        requests.post(f"{TICKET_URL}/save_history", json=history_payload, timeout=2)
-                                        st.success("Ticket closed and saved.")
-                                    except Exception:
-                                        pass
-                                    st.rerun()
-                                    
-                            user_reply = st.chat_input("Reply to the agent...")
-                            if user_reply:
-                                state["chat_history"].append({"role": "user", "content": user_reply})
-                                with st.spinner("Agent is reasoning..."):
-                                    try:
-                                        res = requests.post(f"{TICKET_URL}/resolve", json={"ticket_json": ticket_json, "chat_history": state["chat_history"]})
-                                        res.raise_for_status()
-                                        resolve_result = res.json()
-                                        final_resp = resolve_result.get("final_response", "Error")
-                                        
-                                        state["chat_history"].append({"role": "assistant", "content": final_resp})
-                                        state["trace"].extend(resolve_result.get("trace", []))
-                                        
-                                        if "Escalated" in final_resp or "Error" in final_resp:
-                                            state["status"] = "escalated"
-                                        elif "Please attempt" in final_resp or "let me know" in final_resp or "?" in final_resp:
-                                            state["status"] = "awaiting_user"
-                                        else:
-                                            state["status"] = "resolved"
-                                    except Exception as e:
-                                        st.error(f"Error: {e}")
-                                st.rerun()
-                        with st.expander("View Agent Trace"):
-                            for step in state["trace"]:
-                                if step.get('type') == 'tool_result' and step.get('name') == 'search_knowledge_base':
-                                    st.markdown("📄 **Retrieved Chunks:**")
-                                    st.info(step.get('result', ''))                
-
-                    if state["status"] == "resolved" or state["status"] == "escalated":
-                        st.success(f"Ticket processing finished. Final Status: {state['status'].upper()}")
-                        if st.button("Start Over", key="restart"):
-                            del st.session_state[state_key]
-                            st.rerun()
-    elif ticket_step == "Batch Process Tickets":
-        st.subheader("Batch Process Tickets")
-        if not ticket_ids:
-            st.warning(f"No JSON tickets found in `{TRAIN_TICKETS_DIR}`")
-        else:
-            batch_limit = st.number_input("Batch Limit (0 = all)", min_value=0, max_value=len(ticket_ids), value=10, key="batch_process_limit")
-            if st.button("Process Batch", type="primary"):
-                st.divider()
-                st.subheader("Batch Processing Results")
-                
-                tickets_to_process = ticket_ids[:batch_limit] if batch_limit > 0 else ticket_ids
-                
-                progress_bar = st.progress(0)
-                status_text = st.empty()
-                
-                results = []
-                
-                for i, ticket_id in enumerate(tickets_to_process):
-                    status_text.text(f"Processing ticket {i+1} of {len(tickets_to_process)}: {ticket_id}")
-                    
-                    # Load ticket
-                    ticket_data = None
-                    ticket_json = None
-                    
-                    if (st.session_state.get("loaded_tickets") and 
-                        st.session_state.get("loaded_tickets_raw") and 
-                        ticket_id in st.session_state.loaded_tickets):
-                        ticket_data = st.session_state.loaded_tickets[ticket_id]
-                        ticket_json = st.session_state.loaded_tickets_raw[ticket_id]
-                    else:
-                        found = list(TRAIN_TICKETS_DIR.rglob(f"{ticket_id}.json"))
-                        if not found:
-                            results.append({"ID": ticket_id, "Subject": "Error", "Routing": "ERROR", "Reasoning": "File not found", "Trace": [], "Final Response": "Error"})
-                            progress_bar.progress((i + 1) / len(tickets_to_process))
-                            continue
-                        ticket_path = found[0]
-                        try:
-                            with open(ticket_path, 'r') as f:
-                                content = f.read()
-                                ticket_data = json.loads(content)
-                                ticket_json = content
-                        except OSError as e:
-                            if e.errno == 35:  # Resource deadlock avoided (Mac Docker volume bug)
-                                import subprocess
-                                try:
-                                    content = subprocess.check_output(["cat", str(ticket_path)]).decode("utf-8")
-                                    ticket_data = json.loads(content)
-                                    ticket_json = content
-                                except subprocess.CalledProcessError:
-                                    results.append({"ID": ticket_id, "Subject": "Error", "Routing": "ERROR", "Reasoning": "Mac Docker Volume Deadlock", "Trace": [], "Final Response": "Error"})
-                                    progress_bar.progress((i + 1) / len(tickets_to_process))
-                                    continue
-                                except Exception as sub_e:
-                                    results.append({"ID": ticket_id, "Subject": "Error", "Routing": "ERROR", "Reasoning": str(sub_e), "Trace": [], "Final Response": "Error"})
-                                    progress_bar.progress((i + 1) / len(tickets_to_process))
-                                    continue
-                            else:
-                                results.append({"ID": ticket_id, "Subject": "Error", "Routing": "ERROR", "Reasoning": str(e), "Trace": [], "Final Response": "Error"})
-                                progress_bar.progress((i + 1) / len(tickets_to_process))
-                                continue
-                        except Exception as e:
-                            results.append({"ID": ticket_id, "Subject": "Error", "Routing": "ERROR", "Reasoning": str(e), "Trace": [], "Final Response": "Error"})
-                            progress_bar.progress((i + 1) / len(tickets_to_process))
-                            continue
-                    
-                    # Triage
+            if state["routing"] == "L1_GUIDED":
+                with st.spinner("Resolving — searching the knowledge base, reasoning, deciding on an action..."):
                     try:
-                        res = requests.post(f"{TICKET_URL}/triage", json={"ticket_json": ticket_json})
-                        res.raise_for_status()
-                        triage_result = res.json()
-                        routing = triage_result.get('routing', 'ERROR')
-                        reasoning = triage_result.get('reasoning', 'No reasoning provided.')
+                        resolve_result, elapsed = timed_post(f"{API_URL}/resolve", {"ticket_json": ticket_json, "chat_history": []}, timeout=180)
+                        final_resp = resolve_result.get("final_response", "Error")
+                        state["chat_history"].append({"role": "assistant", "content": final_resp, "elapsed": elapsed})
+                        state["trace"] = resolve_result.get("trace", [])
+                        state["status"] = classify_status(final_resp)
                     except Exception as e:
-                        routing = "ERROR"
-                        reasoning = str(e)
-                    
-                    # Resolution if needed
-                    trace = []
-                    final_response = "N/A"
+                        state["status"] = "escalated"
+                        state["chat_history"].append({"role": "assistant", "content": f"Error: {e}"})
+            else:
+                state["status"] = "resolved"
+            st.rerun()
+
+        if state["started"]:
+            st.divider()
+            cls, label = ROUTING_STYLE.get(state["routing"], ("l2", state["routing"]))
+            timing_bits = []
+            if state.get("triage_time") is not None:
+                timing_bits.append(f"triage {state['triage_time']:.1f}s")
+            turn_elapsed = [m["elapsed"] for m in state["chat_history"] if m.get("role") == "assistant" and m.get("elapsed") is not None]
+            if turn_elapsed:
+                timing_bits.append(f"resolution {sum(turn_elapsed):.1f}s")
+            timing_label = " ⏱️ " + " · ".join(timing_bits) if timing_bits else ""
+            st.markdown(f'<span class="pill pill-{cls}">{label}</span>{timing_label}', unsafe_allow_html=True)
+            st.caption(state["reasoning"])
+
+            official_escalate = load_train_index().get(ticket_id)
+            if official_escalate is not None:
+                agent_escalated = (state["routing"] or "").strip().upper() == "L2_ESCALATION"
+                match = agent_escalated == official_escalate
+                verdict = "✅ Agent matched" if match else "❌ Agent disagreed"
+                expected_label = "should escalate (L2)" if official_escalate else "should NOT escalate (L1)"
+                st.markdown(f"**Official ground truth (tickets/train_index.csv):** `{expected_label}` — {verdict}")
+
+            gt = load_labels().get(ticket_id)
+            if gt:
+                gt_routing = gt.get("correct_routing", "")
+                st.caption(f"LLM-generated label (unverified, disagrees with official ~48% of the time): `{gt_routing}`" + (f" — {gt['escalation_reason']}" if gt.get("escalation_reason") else ""))
+
+            latency_rows = build_latency_rows(state)
+            if latency_rows:
+                with st.expander("⏱️ Component-level latency", expanded=False):
+                    df_latency = pd.DataFrame(latency_rows)
+                    st.dataframe(df_latency, use_container_width=True, hide_index=True)
+                    llm_total = sum(r["Duration (s)"] for r in latency_rows if r["Type"] == "LLM")
+                    tool_total = sum(r["Duration (s)"] for r in latency_rows if r["Type"] != "LLM")
+                    st.caption(f"Total: {llm_total + tool_total:.2f}s — LLM calls {llm_total:.2f}s, retrieval/tools {tool_total:.2f}s")
+
+            if state["routing"] == "L1_GUIDED":
+                left, right = st.columns([3, 2])
+                with left:
+                    st.markdown("##### Conversation")
+                    for msg in state["chat_history"]:
+                        with st.chat_message(msg["role"]):
+                            st.write(msg["content"])
+                            if msg.get("elapsed") is not None:
+                                st.caption(f"⏱️ {msg['elapsed']:.1f}s")
+
+                    if state["status"] == "awaiting_user":
+                        user_reply = st.chat_input("Reply as the store employee...")
+                        if user_reply:
+                            state["chat_history"].append({"role": "user", "content": user_reply})
+                            with st.spinner("Agent is reasoning..."):
+                                try:
+                                    resolve_result, elapsed = timed_post(f"{API_URL}/resolve", {"ticket_json": ticket_json, "chat_history": state["chat_history"]}, timeout=180)
+                                    final_resp = resolve_result.get("final_response", "Error")
+                                    state["chat_history"].append({"role": "assistant", "content": final_resp, "elapsed": elapsed})
+                                    state["trace"].extend(resolve_result.get("trace", []))
+                                    state["status"] = classify_status(final_resp)
+                                except Exception as e:
+                                    st.error(str(e))
+                            st.rerun()
+
+                    if state["status"] in ("resolved", "escalated"):
+                        if state["status"] == "resolved":
+                            st.success("✅ Ticket resolved")
+                        else:
+                            st.warning("🚨 Escalated to L2")
+
+                with right:
+                    if gt and gt.get("relevant_kb_docs"):
+                        relevant = {d.split("/")[-1] for d in gt["relevant_kb_docs"]}
+                        retrieved = set(extract_sources(state["trace"]))
+                        found = relevant & retrieved
+                        st.markdown("##### Retrieval vs. ground truth (unverified)")
+                        (st.success if found else st.error)(
+                            f"{'✅' if found else '❌'} {len(found)}/{len(relevant)} relevant docs retrieved",
+                            icon=None,
+                        )
+                        st.caption("Expected: " + ", ".join(f"`{d}`" + (" ✓" if d in retrieved else "") for d in sorted(relevant)))
+                        st.caption("Note: relevant_kb_docs is LLM-generated, not officially verified — treat as directional.")
+
+                    st.markdown("##### Guardrails")
+                    checks = analyze_guardrails(state["trace"])
+                    if not checks:
+                        st.caption("No guardrail-relevant actions yet.")
+                    for ok, text in checks:
+                        (st.success if ok else st.error)(text, icon="✅" if ok else "⚠️")
+
+                    st.markdown("##### Agent trace")
+                    render_trace(state["trace"])
+            else:
+                st.info("Routed outside the L1 flow — no resolution agent run needed for this ticket.")
+
+# ============================================================ EVALUATION ===
+with tab_eval:
+    st.subheader("Routing & retrieval accuracy")
+    st.caption("Routing accuracy: vs. `tickets/train_index.csv` escalation_flag — official ground truth from the challenge. "
+               "Retrieval hit-rate/recall: vs. `labels/train_labels.json` relevant_kb_docs — LLM-generated, not officially verified; treat as directional.")
+
+    metrics_files = sorted(EVAL_RUNS_DIR.glob("labeled_eval_*_metrics.json")) if EVAL_RUNS_DIR.exists() else []
+
+    if not metrics_files:
+        st.info("No evaluation runs yet. Use the panel below to run one.")
+    else:
+        latest = json.loads(metrics_files[-1].read_text())
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Routing accuracy", f"{latest.get('routing_accuracy', 0) * 100:.1f}%",
+                  help=f"{latest.get('routing_correct', 0)}/{latest.get('routing_total', 0)} correct")
+        c2.metric("Retrieval hit-rate", f"{latest.get('retrieval_hit_rate', 0) * 100:.1f}%",
+                  help="Share of L1 tickets where at least one relevant runbook was retrieved")
+        c3.metric("Retrieval recall@k", f"{latest.get('retrieval_recall_avg', 0) * 100:.1f}%",
+                  help="Average share of all relevant docs found per ticket")
+        c4.metric("Tickets evaluated", latest.get("total_tickets", 0), help=f"{latest.get('errors', 0)} errors")
+        st.caption(f"Latest run: `{metrics_files[-1].stem}`")
+
+        if len(metrics_files) > 1:
+            hist = []
+            for f in metrics_files:
+                m = json.loads(f.read_text())
+                hist.append({
+                    "run": f.stem.replace("labeled_eval_", "").replace("_metrics", ""),
+                    "routing_accuracy": m.get("routing_accuracy", 0),
+                    "retrieval_hit_rate": m.get("retrieval_hit_rate", 0),
+                })
+            st.line_chart(pd.DataFrame(hist).set_index("run"))
+
+        details_path = metrics_files[-1].with_name(metrics_files[-1].name.replace("_metrics.json", "_details.csv"))
+        if details_path.exists():
+            with st.expander("Per-ticket results"):
+                st.dataframe(pd.read_csv(details_path), use_container_width=True)
+
+    st.divider()
+    st.markdown("##### Run a new evaluation")
+    st.caption("Calls the live agent for each ticket in train_index.csv — this is a real, not simulated, accuracy check.")
+    limit = st.slider("Number of tickets to evaluate", 5, 256, 20)
+    if st.button("▶️ Run evaluation now", type="primary"):
+        with st.spinner(f"Evaluating {limit} tickets against ground truth..."):
+            try:
+                from services.eval_labeled import evaluate as run_labeled_eval
+                new_metrics, _ = run_labeled_eval(limit=limit)
+                st.success("Evaluation complete.")
+                st.json(new_metrics)
+                st.rerun()
+            except Exception as e:
+                st.error(f"Evaluation failed: {e}")
+
+    st.divider()
+    st.markdown("##### Does the cross-encoder reranker actually help?")
+    st.caption("Retrieval-only ablation — same query sent twice per ticket, once reranked and once left in raw embedding-similarity order. No LLM calls, so it's fast to re-run.")
+
+    if RAG_RESULTS_CSV.exists():
+        rag_df = pd.read_csv(RAG_RESULTS_CSV)
+        ablation_df = rag_df[rag_df["eval_type"] == "retrieval_ablation"]
+        if not ablation_df.empty:
+            latest_ts = ablation_df["timestamp"].max()
+            latest = ablation_df[ablation_df["timestamp"] == latest_ts]
+            reranked = latest[latest["reranker_enabled"] == True]
+            baseline = latest[latest["reranker_enabled"] == False]
+            if not reranked.empty and not baseline.empty:
+                r, b = reranked.iloc[0], baseline.iloc[0]
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Hit-rate — with reranker", f"{r['retrieval_hit_rate'] * 100:.1f}%",
+                          delta=f"{(r['retrieval_hit_rate'] - b['retrieval_hit_rate']) * 100:+.1f}pp vs. no rerank")
+                c2.metric("Recall@k — with reranker", f"{r['retrieval_recall_avg'] * 100:.1f}%",
+                          delta=f"{(r['retrieval_recall_avg'] - b['retrieval_recall_avg']) * 100:+.1f}pp vs. no rerank")
+                c3.metric("Tickets tested", int(r["tickets_evaluated"]))
+                st.caption(f"Baseline without reranking: {b['retrieval_hit_rate'] * 100:.1f}% hit-rate, {b['retrieval_recall_avg'] * 100:.1f}% recall@k. Run: `{latest_ts}`")
+        else:
+            st.info("No ablation run yet — use the button below.")
+    else:
+        st.info("No ablation run yet — use the button below.")
+
+    if st.button("▶️ Run reranker ablation now"):
+        with st.spinner("Querying the knowledge base with and without reranking for every labeled ticket..."):
+            try:
+                from services.eval_retrieval_ablation import run_ablation
+                reranked_m, baseline_m = run_ablation(limit=0)
+                st.success("Ablation complete.")
+                st.json({"with_reranker": reranked_m, "without_reranker": baseline_m})
+                st.rerun()
+            except Exception as e:
+                st.error(f"Ablation failed: {e}")
+
+    if RAG_RESULTS_CSV.exists():
+        with st.expander("All RAG_Results runs"):
+            st.dataframe(pd.read_csv(RAG_RESULTS_CSV), use_container_width=True)
+
+# ============================================================== LATENCY ====
+with tab_latency:
+    st.subheader("Component-level latency across all labeled tickets")
+    st.caption("Where each ticket's processing time actually goes — triage, retrieval calls, and LLM reasoning turns — measured on the live agent, not simulated.")
+
+    if LATENCY_RESULT_CSV.exists():
+        lat_df = pd.read_csv(LATENCY_RESULT_CSV)
+        n = len(lat_df)
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Tickets measured", n)
+        c2.metric("Avg total time", f"{lat_df['total_time_s'].mean():.2f}s")
+        c3.metric("Median total time", f"{lat_df['total_time_s'].median():.2f}s")
+        c4.metric("P95 total time", f"{lat_df['total_time_s'].quantile(0.95):.2f}s")
+
+        st.markdown("##### Average time by component")
+        component_cols = {
+            "triage_time_s": "Triage LLM call",
+            "search_knowledge_base_time_s": "search_knowledge_base",
+            "get_system_spec_time_s": "get_system_spec",
+            "search_faq_time_s": "search_faq",
+        }
+        avg_total = lat_df["total_time_s"].mean()
+        rows = []
+        for col, label in component_cols.items():
+            if col in lat_df.columns:
+                rows.append({"Component": label, "Avg (s)": lat_df[col].mean(), "Median (s)": lat_df[col].median(), "% of total": lat_df[col].mean() / avg_total * 100})
+        llm_turns = (lat_df["llm_time_s"] - lat_df["triage_time_s"]).clip(lower=0)
+        rows.append({"Component": "LLM reasoning turns", "Avg (s)": llm_turns.mean(), "Median (s)": llm_turns.median(), "% of total": llm_turns.mean() / avg_total * 100})
+        component_table = pd.DataFrame(rows).round({"Avg (s)": 3, "Median (s)": 3, "% of total": 1})
+        st.dataframe(component_table, use_container_width=True, hide_index=True)
+
+        st.markdown("##### LLM time vs. retrieval/tool time")
+        split_table = pd.DataFrame([
+            {"Category": "LLM calls (triage + reasoning)", "Avg (s)": lat_df["llm_time_s"].mean(), "% of total": lat_df["llm_time_s"].mean() / avg_total * 100},
+            {"Category": "Retrieval/tools", "Avg (s)": lat_df["tool_time_s"].mean(), "% of total": lat_df["tool_time_s"].mean() / avg_total * 100},
+        ]).round({"Avg (s)": 3, "% of total": 1})
+        st.dataframe(split_table, use_container_width=True, hide_index=True)
+
+        with st.expander("Per-ticket results", expanded=False):
+            st.dataframe(lat_df, use_container_width=True, hide_index=True)
+
+        if LATENCY_DETAILS_CSV.exists():
+            with st.expander("Per-component detail (every call, every ticket)", expanded=False):
+                st.dataframe(pd.read_csv(LATENCY_DETAILS_CSV), use_container_width=True, hide_index=True)
+
+        st.caption(f"Source: `RAG_Results/Latency_result.csv` and `RAG_Results/Latency_details.csv`")
+    else:
+        st.info("No latency measurement yet. Run one below.")
+
+    st.divider()
+    st.markdown("##### Run a new latency measurement")
+    st.caption("Calls the live agent for every labeled ticket and records per-component timing. Takes a few minutes for the full set.")
+    lat_limit = st.slider("Number of tickets to measure", 5, 220, 20, key="latency_limit_slider")
+    if st.button("▶️ Run latency measurement now", type="primary"):
+        with st.spinner(f"Measuring latency across {lat_limit} tickets..."):
+            try:
+                from services.eval_latency import run_latency_eval
+                summary_df, _ = run_latency_eval(limit=lat_limit)
+                st.success(f"Measured {len(summary_df)} tickets.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Latency measurement failed: {e}")
+
+# ================================================== ARCHITECTURE & KB ======
+with tab_arch:
+    st.subheader("System architecture")
+    if ARCH_DIAGRAM_PATH.exists():
+        components.html(ARCH_DIAGRAM_PATH.read_text(), height=950, scrolling=True)
+    else:
+        st.warning("Architecture diagram not found at design_md/system_architecture.html.")
+
+    st.divider()
+    st.subheader("Ask the knowledge base directly")
+    st.caption("Bypasses the agent — runs the same retrieval + rerank pipeline the Resolution Agent uses, for technical Q&A.")
+    kb_query = st.text_input("Query")
+    if kb_query:
+        with st.spinner("Searching..."):
+            try:
+                res = requests.post(f"{QUERY_URL}/query", json={"query": kb_query, "n_results": 5}, timeout=30)
+                res.raise_for_status()
+                st.text(res.json().get("results", "No results."))
+            except Exception as e:
+                st.error(str(e))
+
+# ============================================================== ADMIN ======
+with tab_admin:
+    st.caption("Behind-the-scenes tooling — not part of the live demo flow.")
+
+    with st.expander("📚 Knowledge base ingestion"):
+        kb_dir = st.text_input("KB directory", value="./kb", key="admin_kb_dir")
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            if st.button("Preview parse"):
+                try:
+                    res = requests.post(f"{INGESTION_URL}/preview", json={"directory": to_container_path(kb_dir)}, timeout=60)
+                    res.raise_for_status()
+                    st.session_state["admin_preview"] = res.json()
+                except Exception as e:
+                    st.error(str(e))
+        with c2:
+            if st.button("Ingest → Delta index", type="primary"):
+                try:
+                    res = requests.post(f"{INGESTION_URL}/ingest", json={"directory": to_container_path(kb_dir)}, timeout=300)
+                    res.raise_for_status()
+                    st.success(res.json().get("message"))
+                except Exception as e:
+                    st.error(str(e))
+        with c3:
+            if st.button("Rebuild main index"):
+                try:
+                    res = requests.post(f"{INGESTION_URL}/rebuild_main_index", timeout=120)
+                    res.raise_for_status()
+                    st.success(res.json().get("message"))
+                except Exception as e:
+                    st.error(str(e))
+        if "admin_preview" in st.session_state:
+            p = st.session_state["admin_preview"]
+            st.write(f"{p.get('total_chunks', 0)} chunks across categories: {', '.join(p.get('categories', []))}")
+
+    with st.expander("🧮 Vector store"):
+        try:
+            stats = requests.get(f"{ADMIN_URL}/pgvector/stats", timeout=5).json()
+            st.metric("Total vectors", stats.get("total_vectors", 0))
+        except Exception:
+            st.caption("Admin backend unreachable.")
+
+        st.markdown("**Add a chunk manually**")
+        with st.form("admin_add_chunk"):
+            new_content = st.text_area("Content")
+            new_file = st.text_input("File name", value="manual_entry")
+            new_section = st.text_input("Section title", value="Manual insertion")
+            if st.form_submit_button("Add"):
+                try:
+                    res = requests.post(f"{INGESTION_URL}/add_chunk",
+                                         json={"content": new_content, "file_name": new_file, "section_title": new_section},
+                                         timeout=30)
+                    res.raise_for_status()
+                    st.success("Added.")
+                except Exception as e:
+                    st.error(str(e))
+
+    with st.expander("📜 Processed ticket history"):
+        try:
+            hist = requests.get(f"{API_URL}/history", timeout=5).json().get("history", [])
+            if hist:
+                st.dataframe(pd.DataFrame(hist), use_container_width=True)
+            else:
+                st.caption("No tickets processed yet.")
+        except Exception as e:
+            st.error(str(e))
+
+    with st.expander("📦 Batch regression run (sample tickets)"):
+        sample_ids = list_sample_tickets()
+        if not sample_ids:
+            st.caption(f"No sample tickets found in `{TICKETS_DIR}`.")
+        else:
+            n = st.number_input("Number of tickets", min_value=1, max_value=len(sample_ids), value=min(10, len(sample_ids)))
+            if st.button("Run batch"):
+                progress = st.progress(0)
+                results = []
+                for i, tid in enumerate(sample_ids[:n]):
+                    tj = read_ticket_json(tid)
+                    data = json.loads(tj)
+                    total_time = 0.0
+                    try:
+                        triage, triage_time = timed_post(f"{API_URL}/triage", {"ticket_json": tj}, timeout=120)
+                        routing = triage.get("routing", "ERROR")
+                        total_time += triage_time
+                    except Exception as e:
+                        routing, triage = "ERROR", {"reasoning": str(e)}
+
+                    final_response, trace = "N/A", []
                     if routing == "L1_GUIDED":
                         try:
-                            res = requests.post(f"{TICKET_URL}/resolve", json={"ticket_json": ticket_json})
-                            res.raise_for_status()
-                            resolve_result = res.json()
+                            resolve_result, resolve_time = timed_post(f"{API_URL}/resolve", {"ticket_json": tj}, timeout=180)
                             final_response = resolve_result.get("final_response", "Error")
                             trace = resolve_result.get("trace", [])
+                            total_time += resolve_time
                         except Exception as e:
-                            final_response = "Error"
-                            trace = [{"type": "reasoning", "text": str(e)}]
-                    
+                            final_response = f"Error: {e}"
+
                     results.append({
-                        "ID": ticket_data.get('ticket_id', ticket_id) if isinstance(ticket_data, dict) else ticket_id,
-                        "Subject": ticket_data.get('subject', 'Unknown') if isinstance(ticket_data, dict) else 'Unknown',
-                        "Routing": routing,
-                        "Reasoning": reasoning,
-                        "Final Response": final_response,
-                        "Trace": trace
+                        "ID": tid, "Subject": data.get("subject", ""), "Routing": routing,
+                        "Time (s)": round(total_time, 1), "Final Response": final_response, "_trace": trace,
                     })
-                    
-                    try:
-                        history_payload = {
-                            "ticket_id": ticket_data.get('ticket_id', ticket_id) if isinstance(ticket_data, dict) else ticket_id,
-                            "subject": ticket_data.get('subject', 'Unknown') if isinstance(ticket_data, dict) else 'Unknown',
-                            "routing": routing,
-                            "reasoning": reasoning,
-                            "resolution": final_response
-                        }
-                        requests.post(f"{TICKET_URL}/save_history", json=history_payload, timeout=2)
-                    except Exception:
-                        pass
-                    
-                    progress_bar.progress((i + 1) / len(tickets_to_process))
-                
-                status_text.text("Batch processing complete!")
-                
-                # Display results
-                import pandas as pd
-                df = pd.DataFrame(results)[["ID", "Subject", "Routing", "Reasoning", "Final Response"]]
+                    progress.progress((i + 1) / n)
+
+                df = pd.DataFrame(results)[["ID", "Subject", "Routing", "Time (s)", "Final Response"]]
                 st.dataframe(df, use_container_width=True)
-                
-                st.subheader("Detailed Traces")
-                for res in results:
-                    with st.expander(f"{res['ID']} - {res['Routing']}"):
-                        st.markdown(f"**Subject:** {res['Subject']}")
-                        st.markdown(f"**Reasoning:** {res['Reasoning']}")
-                        st.markdown(f"**Final Response:** {res['Final Response']}")
-                        if res['Trace']:
-                            st.write("---")
-                            st.write("**Agent Trace:**")
-                            for step in res['Trace']:
-                                if step.get('type') == 'tool_call':
-                                    st.markdown(f"🛠️ **Tool Call:** `{step.get('name')}`")
-                                    st.json(step.get('args', {}))
-                                elif step.get('type') == 'tool_result':
-                                    st.markdown("📄 **Retrieved Chunks / Tool Result:**")
-                                    st.info(step.get('result', ''))
-                                elif step.get('type') == 'reasoning':
-                                    st.markdown(f"🧠 **Agent Thought:** {step.get('text')}")
-                                    
-    elif ticket_step == "View Processed History":
-        st.subheader("View Processed History")
-        if st.button("Refresh History", key="refresh_history"):
-            pass
-            
-        try:
-            res = requests.get(f"{TICKET_URL}/history", timeout=5)
-            res.raise_for_status()
-            history_data = res.json().get("history", [])
-            if not history_data:
-                st.info("No tickets have been processed yet.")
-            else:
-                import pandas as pd
-                df = pd.DataFrame(history_data)
-                st.dataframe(df, use_container_width=True)
-        except Exception as e:
-            st.error(f"Failed to fetch history: {e}")
-
-with tab_faiss:
-    st.header("PGVector Database")
-    st.write("View and search the current embeddings stored in the PostgreSQL database.")
-    
-    MAIN_COLLECTION = "main_index"
-    DELTA_COLLECTION = "delta_index"
-    
-    try:
-        # Fetch Stats
-        try:
-            stats_res = requests.get(f"{ADMIN_URL}/pgvector/stats", timeout=5)
-            stats_res.raise_for_status()
-            total_vectors = stats_res.json().get("total_vectors", 0)
-        except Exception:
-            total_vectors = 0
-            
-        st.metric("Total Vectors (Main + Delta)", total_vectors)
-        
-        st.markdown("---")
-        st.subheader("Semantic Search")
-        query = st.text_input("Enter a search query to test the vector database:")
-        
-        if query:
-            with st.spinner("Searching and Reranking..."):
-                try:
-                    search_res = requests.post(f"{ADMIN_URL}/pgvector/search", json={"query": query, "initial_k": 15})
-                    search_res.raise_for_status()
-                    data = search_res.json()
-                    unique_fetched = data.get("unique_fetched", 0)
-                    results = data.get("results", [])
-                    
-                    st.write(f"Fetched top chunks from Main & Delta (Unique: {unique_fetched}). Applied Cross-Encoder re-ranking...")
-                    st.write(f"Top {len(results)} re-ranked results:")
-                    
-                    for res in results:
-                        score = res.get("score", 0)
-                        metadata = res.get("metadata", {})
-                        content = res.get("page_content", "")
-                        
-                        with st.expander(f"Rerank Score: {score:.4f} | {metadata.get('file_name', 'Unknown')}"):
-                            st.json(metadata)
-                            st.text_area("Content", value=content, height=150, disabled=True, label_visibility="collapsed")
-                except requests.exceptions.RequestException as e:
-                    st.error(f"Search failed: {e}")
-        
-        st.markdown("---")
-        st.subheader("Stored Document Chunks")
-        with st.expander("View all chunks in PGVector (Main & Delta)", expanded=False):
-            df_data = []
-            try:
-                main_res = requests.get(f"{ADMIN_URL}/pgvector/documents", params={"collection_name": MAIN_COLLECTION, "limit": 100})
-                if main_res.status_code == 200:
-                    for doc in main_res.json().get("documents", []):
-                        doc["Index"] = "Main"
-                        doc["Content"] = doc["Content"][:200] + "..." if len(doc["Content"]) > 200 else doc["Content"]
-                        df_data.append(doc)
-                        
-                delta_res = requests.get(f"{ADMIN_URL}/pgvector/documents", params={"collection_name": DELTA_COLLECTION, "limit": 100})
-                if delta_res.status_code == 200:
-                    for doc in delta_res.json().get("documents", []):
-                        doc["Index"] = "Delta"
-                        doc["Content"] = doc["Content"][:200] + "..." if len(doc["Content"]) > 200 else doc["Content"]
-                        df_data.append(doc)
-            except Exception as e:
-                st.error(f"Failed to fetch documents: {e}")
-
-            if df_data:
-                import pandas as pd
-                st.write(f"Showing up to {len(df_data)} chunks:")
-                st.dataframe(pd.DataFrame(df_data))
-            else:
-                st.write("No documents found in database.")
-        
-        st.markdown("---")
-        st.subheader("Manage Vector Store")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            with st.form("add_chunk_form"):
-                st.write("**Add New Chunk**")
-                new_content = st.text_area("Content (Markdown/Text)")
-                new_file = st.text_input("File Name", value="manual_entry")
-                new_section = st.text_input("Section Title", value="Manual Insertion")
-                if st.form_submit_button("Add Chunk"):
-                    if not new_content.strip():
-                        st.error("Content cannot be empty.")
-                    else:
-                        try:
-                            res = requests.post(f"{INGESTION_URL}/add_chunk", json={
-                                "content": new_content,
-                                "file_name": new_file,
-                                "section_title": new_section
-                            })
-                            res.raise_for_status()
-                            st.success(res.json().get("message", "Success"))
-                            st.rerun()
-                        except requests.exceptions.HTTPError as he:
-                            st.error(f"HTTP Error: {he.response.text}")
-                        except Exception as e:
-                            st.error(f"Failed to add chunk: {e}")
-                            
-        with col2:
-            with st.form("delete_chunk_form"):
-                st.write("**Delete Chunk**")
-                del_doc_id = st.text_input("Document ID")
-                del_index = st.selectbox("Index Type", ["Delta", "Main"])
-                if st.form_submit_button("Delete Chunk"):
-                    if not del_doc_id.strip():
-                        st.error("Document ID cannot be empty.")
-                    else:
-                        try:
-                            res = requests.post(f"{INGESTION_URL}/delete_chunk", json={
-                                "doc_id": del_doc_id.strip(),
-                                "index_type": del_index.lower()
-                            })
-                            res.raise_for_status()
-                            st.success(res.json().get("message", "Success"))
-                            st.rerun()
-                        except requests.exceptions.HTTPError as he:
-                            st.error(f"HTTP Error: {he.response.text}")
-                        except Exception as e:
-                            st.error(f"Failed to delete chunk: {e}")
-
-        st.write("---")
-        if st.button("🔄 Rebuild Main Index (Merge Delta)", key="rebuild_main_index_faiss", help="Merge all Delta ingestion updates into the Main HNSW graph."):
-            with st.status("Rebuilding Main Index...", expanded=True) as rebuild_status:
-                try:
-                    res = requests.post(f"{INGESTION_URL}/rebuild_main_index")
-                    res.raise_for_status()
-                    data = res.json()
-                    st.write(data.get("message", "Rebuild successful."))
-                    rebuild_status.update(label="Rebuild Complete!", state="complete")
-                except requests.exceptions.HTTPError as he:
-                    rebuild_status.update(label="Failed to rebuild index", state="error")
-                    st.error(f"HTTP Error: {he.response.text}")
-                except Exception as e:
-                    rebuild_status.update(label="Failed to rebuild index", state="error")
-                    st.error(f"Error: {e}")
-    except Exception as e:
-        st.error(f"Error loading PGVector database UI: {e}")
+                st.caption(f"Average: {df['Time (s)'].mean():.1f}s per ticket")
+                for r in results:
+                    if r["_trace"]:
+                        with st.expander(f"{r['ID']} — {r['Routing']}"):
+                            render_trace(r["_trace"])

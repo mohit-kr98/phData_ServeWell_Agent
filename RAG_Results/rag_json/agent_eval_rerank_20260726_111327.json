@@ -1,0 +1,246 @@
+{
+  "run_id": "agent_eval_rerank_20260726_111327",
+  "eval_type": "agent_eval",
+  "reranker_enabled": true,
+  "metrics": {
+    "total_tickets": 20,
+    "routing_total": 20,
+    "routing_correct": 20,
+    "routing_accuracy": 1.0,
+    "retrieval_total": 11,
+    "retrieval_hit_rate": 0.9090909090909091,
+    "retrieval_recall_avg": 0.4201298701298701,
+    "errors": 0
+  },
+  "details": [
+    {
+      "ticket_id": "INC-00162",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "system-specs/foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "epson-printer.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.25
+    },
+    {
+      "ticket_id": "INC-00282",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00008",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-scanner.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md",
+        "printer-driver-reinstall.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00060",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-screen-frozen.md",
+        "system-specs/orbitpos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    },
+    {
+      "ticket_id": "INC-00007",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00090",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00119",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00085",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00024",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-end-of-day.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6
+    },
+    {
+      "ticket_id": "INC-00019",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00121",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "online-orders-sync-failure.md",
+        "pos-payment-error.md",
+        "pos-software-update.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md",
+        "network-faq.md",
+        "pos-startup-failure.md",
+        "pos-pin-pad.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.2
+    },
+    {
+      "ticket_id": "INC-00120",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00004",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-pin-pad.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "online-orders-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00202",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "pos-software-update.md",
+        "pos-slow-performance.md",
+        "pos-payment-error.md",
+        "system-specs/foodtech-pos.md",
+        "printers-faq.md",
+        "pos-faq.md",
+        "pos-pin-pad.md",
+        "online-orders-sync-failure.md",
+        "pos-printer-integration.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.16666666666666666
+    },
+    {
+      "ticket_id": "INC-00057",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00064",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "pos-faq.md",
+        "system-specs/foodtech-pos.md",
+        "printers-faq.md",
+        "shift-start-checklist.md",
+        "star-printer.md",
+        "epson-printer.md",
+        "printer-wrong-output.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5714285714285714
+    },
+    {
+      "ticket_id": "INC-00015",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-printer-integration.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "printers-faq.md",
+        "printer-offline.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.5
+    },
+    {
+      "ticket_id": "INC-00087",
+      "expected_routing": "l2_escalation",
+      "actual_routing": "l2_escalation",
+      "routing_correct": true
+    },
+    {
+      "ticket_id": "INC-00107",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-startup-failure.md",
+        "pos-slow-performance.md",
+        "pos-software-update.md",
+        "online-orders-sync-failure.md",
+        "system-specs/foodtech-pos.md",
+        "pos-faq.md",
+        "kiosks-faq.md",
+        "pos-payment-error.md"
+      ],
+      "retrieval_hit": false,
+      "retrieval_recall": 0.0
+    },
+    {
+      "ticket_id": "INC-00097",
+      "expected_routing": "l1_guided",
+      "actual_routing": "l1_guided",
+      "routing_correct": true,
+      "retrieved_docs": [
+        "pos-slow-performance.md",
+        "system-specs/orbitpos.md",
+        "pos-faq.md"
+      ],
+      "retrieval_hit": true,
+      "retrieval_recall": 0.6666666666666666
+    }
+  ]
+}

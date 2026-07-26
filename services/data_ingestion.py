@@ -45,7 +45,7 @@ def get_embeddings():
     from langchain_aws import BedrockEmbeddings
     return BedrockEmbeddings(
         model_id=BEDROCK_EMBEDDING_MODEL,
-        region_name=os.environ.get("AWS_REGION", "us-east-1")
+        region_name=os.environ.get("AWS_REGION", "ap-south-1")
     )
 
 class IngestRequest(BaseModel):
