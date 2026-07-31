@@ -41,6 +41,8 @@ import datetime
 import json
 import re
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
@@ -107,7 +109,80 @@ def strip_escalation_flag(ticket_json: str) -> str:
         return ticket_json
 
 
-def evaluate(limit: int = 0, sleep_between: float = 0.0):
+def _evaluate_ticket(index_row, labels_by_id, sleep_between: float = 0.0) -> dict | None:
+    """Score one ticket end to end. Returns its row, or None if unscoreable.
+
+    Deliberately free of shared mutable state: every aggregate (routing
+    accuracy, retrieval hit-rate, error count) is derived from the returned
+    rows afterwards rather than accumulated into counters here, so this is
+    safe to run concurrently across tickets without locks.
+    """
+    ticket_id = index_row["ticket_id"]
+    ticket_file = TICKETS_DIR / f"{ticket_id}.json"
+    if not ticket_file.exists():
+        return None
+    label = labels_by_id.get(ticket_id)
+    if not label:
+        # No answer key for this ticket -- it cannot be scored, so skip it
+        # rather than silently grading against a default.
+        return None
+
+    ticket_json = ticket_file.read_text()
+    triage_input = strip_escalation_flag(ticket_json)
+    expected_escalate = str(label.get("correct_routing", "")).strip().lower() == "l2_escalation"
+    # Secondary diagnostic only -- what the ticket arrived marked as.
+    marked_escalate = bool(index_row["escalation_flag"])
+    relevant_docs = {basename(d) for d in label.get("relevant_kb_docs", [])}
+
+    row = {"ticket_id": ticket_id, "expected_escalate": expected_escalate,
+           "expected_routing": label.get("correct_routing"),
+           "ticket_escalation_flag": marked_escalate}
+    try:
+        triage_res = requests.post(f"{API_URL}/triage", json={"ticket_json": triage_input}, timeout=300).json()
+        actual_routing = triage_res.get("routing", "ERROR").strip().lower()
+        actual_escalate = actual_routing == "l2_escalation"
+        row["actual_routing"] = actual_routing
+        row["routing_correct"] = actual_escalate == expected_escalate
+        row["matches_ticket_flag"] = actual_escalate == marked_escalate
+
+        resolve_res = None
+        if actual_routing == "l1_guided":
+            resolve_res = requests.post(
+                f"{API_URL}/resolve", json={"ticket_json": ticket_json}, timeout=600
+            ).json()
+            trace = resolve_res.get("trace", [])
+            retrieved = extract_retrieved_sources(trace)
+            row["retrieved_docs"] = retrieved
+
+            # Groundedness + guardrails: unlike routing accuracy (whose
+            # label was measured to be statistically unlearnable), these
+            # grade what the agent actually controls -- whether the
+            # specifics it tells a store to act on came from a retrieved
+            # runbook, and whether its own guardrails held.
+            row.update(score_ticket_quality(resolve_res.get("final_response", ""), trace, ticket_json))
+
+            if relevant_docs:
+                row["retrieval_hit"] = bool(relevant_docs & set(retrieved))
+                row["retrieval_recall"] = len(relevant_docs & set(retrieved)) / len(relevant_docs)
+
+        # Free latency data: /triage and (when L1_GUIDED) /resolve were
+        # just called for accuracy anyway, and both already carry
+        # per-step duration_s -- extract_timing reads that instead of
+        # re-triaging/re-resolving every ticket a second time just to
+        # time it, which is what running the separate latency eval
+        # after this one would otherwise do.
+        timing_fields, _ = extract_timing(triage_res, resolve_res)
+        row.update(timing_fields)
+
+    except Exception as e:
+        row["error"] = str(e)
+
+    if sleep_between:
+        time.sleep(sleep_between)
+    return row
+
+
+def evaluate(limit: int = 0, sleep_between: float = 0.0, workers: int = 1):
     index_df = pd.read_csv(TRAIN_INDEX_CSV)
     if limit > 0:
         index_df = index_df.head(limit)
@@ -116,91 +191,32 @@ def evaluate(limit: int = 0, sleep_between: float = 0.0):
     # LLM-generated labels -- used for retrieval eval only, never routing.
     labels_by_id = {x["ticket_id"]: x for x in json.loads(LABELS_PATH.read_text())}
 
-    routing_correct = 0
-    routing_total = 0
-    retrieval_hits = 0
-    retrieval_recalls = []
-    retrieval_total = 0
-    errors = 0
-    rows = []
+    index_rows = [r for _, r in index_df.iterrows()]
 
-    for _, index_row in index_df.iterrows():
-        ticket_id = index_row["ticket_id"]
-        ticket_file = TICKETS_DIR / f"{ticket_id}.json"
-        if not ticket_file.exists():
-            continue
-        label = labels_by_id.get(ticket_id)
-        if not label:
-            # No answer key for this ticket -- it cannot be scored, so skip it
-            # rather than silently grading against a default.
-            continue
+    if workers > 1:
+        # executor.map preserves input order, so the details CSV stays
+        # row-for-row comparable with a serial run -- diffing two runs by
+        # ticket_id is how regressions get spotted, and that breaks if the
+        # ordering becomes completion-order.
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            results = list(executor.map(
+                lambda r: _evaluate_ticket(r, labels_by_id, sleep_between), index_rows
+            ))
+    else:
+        results = [_evaluate_ticket(r, labels_by_id, sleep_between) for r in index_rows]
 
-        ticket_json = ticket_file.read_text()
-        triage_input = strip_escalation_flag(ticket_json)
-        expected_escalate = str(label.get("correct_routing", "")).strip().lower() == "l2_escalation"
-        # Secondary diagnostic only -- what the ticket arrived marked as.
-        marked_escalate = bool(index_row["escalation_flag"])
-        relevant_docs = {basename(d) for d in label.get("relevant_kb_docs", [])}
+    rows = [r for r in results if r is not None]
 
-        row = {"ticket_id": ticket_id, "expected_escalate": expected_escalate,
-               "expected_routing": label.get("correct_routing"),
-               "ticket_escalation_flag": marked_escalate}
-        try:
-            triage_res = requests.post(f"{API_URL}/triage", json={"ticket_json": triage_input}, timeout=300).json()
-            actual_routing = triage_res.get("routing", "ERROR").strip().lower()
-            actual_escalate = actual_routing == "l2_escalation"
-            routing_total += 1
-            row["actual_routing"] = actual_routing
-            row["routing_correct"] = actual_escalate == expected_escalate
-            row["matches_ticket_flag"] = actual_escalate == marked_escalate
-            if row["routing_correct"]:
-                routing_correct += 1
-
-            resolve_res = None
-            if actual_routing == "l1_guided":
-                resolve_res = requests.post(
-                    f"{API_URL}/resolve", json={"ticket_json": ticket_json}, timeout=600
-                ).json()
-                trace = resolve_res.get("trace", [])
-                retrieved = extract_retrieved_sources(trace)
-                row["retrieved_docs"] = retrieved
-
-                # Groundedness + guardrails: unlike routing accuracy (whose
-                # label was measured to be statistically unlearnable), these
-                # grade what the agent actually controls -- whether the
-                # specifics it tells a store to act on came from a retrieved
-                # runbook, and whether its own guardrails held.
-                row.update(score_ticket_quality(resolve_res.get("final_response", ""), trace, ticket_json))
-
-                if relevant_docs:
-                    retrieval_total += 1
-                    hit = bool(relevant_docs & set(retrieved))
-                    recall = len(relevant_docs & set(retrieved)) / len(relevant_docs)
-                    row["retrieval_hit"] = hit
-                    row["retrieval_recall"] = recall
-                    retrieval_hits += int(hit)
-                    retrieval_recalls.append(recall)
-
-            # Free latency data: /triage and (when L1_GUIDED) /resolve were
-            # just called for accuracy anyway, and both already carry
-            # per-step duration_s -- extract_timing reads that instead of
-            # re-triaging/re-resolving every ticket a second time just to
-            # time it, which is what running the separate latency eval
-            # after this one would otherwise do.
-            timing_fields, _ = extract_timing(triage_res, resolve_res)
-            row.update(timing_fields)
-
-        except Exception as e:
-            errors += 1
-            row["error"] = str(e)
-
-        rows.append(row)
-        if sleep_between:
-            import time
-
-            time.sleep(sleep_between)
-
+    # Aggregates are derived here rather than accumulated during the run, so
+    # they come out identical whether the run was serial or concurrent.
     scored = [r for r in rows if "routing_correct" in r]
+    routing_total = len(scored)
+    routing_correct = sum(1 for r in scored if r["routing_correct"])
+    retrieval_scored = [r for r in rows if "retrieval_hit" in r]
+    retrieval_total = len(retrieval_scored)
+    retrieval_hits = sum(1 for r in retrieval_scored if r["retrieval_hit"])
+    retrieval_recalls = [r["retrieval_recall"] for r in retrieval_scored]
+    errors = sum(1 for r in rows if "error" in r)
     predicted_escalate = sum(1 for r in scored if r.get("actual_routing") == "l2_escalation")
     expected_escalate_n = sum(1 for r in scored if r.get("expected_escalate"))
     matches_flag = sum(1 for r in scored if r.get("matches_ticket_flag"))
@@ -230,9 +246,28 @@ def evaluate(limit: int = 0, sleep_between: float = 0.0):
     # Latency comes free from the same /triage + /resolve calls already made
     # above for accuracy -- no extra requests. Summarized here so "run
     # evaluation" answers both "is it right" and "is it fast" in one pass.
+    #
+    # But only when the run was serial. Under --workers > 1 the tickets
+    # contend for the same single-worker api_service and the CPU-bound
+    # cross-encoder in query_pipeline, which was measured NOT to scale
+    # linearly (1 call ~0.55s, 4 concurrent ~1.19s). Every per-ticket
+    # duration then includes queueing behind other tickets, so avg/p95 come
+    # out inflated and are NOT comparable to a serial run or quotable as
+    # "how long does the agent take". Tag them rather than silently
+    # publishing a contended p95 into the shared latency history.
     rows_df = pd.DataFrame(rows)
     latency_stats = summarize_latency(rows_df)
     if latency_stats:
+        if workers > 1:
+            latency_stats = {
+                **latency_stats,
+                "measurement_valid": False,
+                "measurement_note": (
+                    f"Run with --workers {workers}. Durations include contention between "
+                    "concurrently-processed tickets and are not comparable to a serial run. "
+                    "Re-run with --workers 1 for quotable latency."
+                ),
+            }
         metrics["latency"] = latency_stats
 
     quality_stats = summarize_quality([r for r in rows if "groundedness" in r])
@@ -249,8 +284,11 @@ def evaluate(limit: int = 0, sleep_between: float = 0.0):
     # Also archive into the shared latency history, so latency trends over
     # time include runs measured here -- otherwise the Latency tab's history
     # would only ever show standalone eval_latency runs and silently miss
-    # every measurement taken during an accuracy run.
-    if latency_stats:
+    # every measurement taken during an accuracy run. Contended (--workers > 1)
+    # runs are deliberately excluded: the history feeds a trend chart, and a
+    # concurrency-inflated point there reads as a latency regression that
+    # never happened.
+    if latency_stats and workers == 1:
         LATENCY_RUNS_DIR.mkdir(parents=True, exist_ok=True)
         (LATENCY_RUNS_DIR / f"latency_{timestamp}_metrics.json").write_text(
             json.dumps({"source": "eval_labeled", **latency_stats}, indent=4)
@@ -270,9 +308,13 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate routing accuracy (vs. official escalation_flag, escalation_flag withheld) and retrieval quality (vs. LLM-generated labels).")
     parser.add_argument("--limit", type=int, default=30, help="Number of tickets to evaluate from train_index.csv (0 = all 256).")
     parser.add_argument("--sleep", type=float, default=0.0, help="Seconds to sleep between tickets (rate limiting).")
+    parser.add_argument("--workers", type=int, default=1,
+                        help="Tickets to process concurrently. Default 1. Higher is much faster for "
+                             "accuracy iteration, but latency numbers become contended and are "
+                             "flagged invalid -- use 1 when the run needs quotable latency.")
     args = parser.parse_args()
 
-    metrics, _ = evaluate(limit=args.limit, sleep_between=args.sleep)
+    metrics, _ = evaluate(limit=args.limit, sleep_between=args.sleep, workers=args.workers)
     print(json.dumps(metrics, indent=2))
 
 

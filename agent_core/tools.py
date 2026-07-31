@@ -96,6 +96,108 @@ def get_system_spec(system_version: str) -> Optional[str]:
             return None
     return None
 
+
+# Spec sheets to attach based on the ticket's CATEGORY, as a supplement to the
+# system_version lookup above.
+#
+# Why both: system_version tracks the ASSET RECORD, not what the ticket is
+# about, and the two disagree often (99 of 256 tickets carry an asset_id whose
+# prefix contradicts their category). INC-00074 is a Soft Serve / Error Code
+# ticket whose asset_id is PRN-0010-P1 and system_version "StarMC Print v2" --
+# the version lookup dutifully returned a printer spec for a soft-serve fault.
+#
+# Measured over the 75 retrieval-scored tickets: when the version lookup
+# returned a sheet the answer key wanted, mean recall was 0.804; when it
+# returned an unwanted one (20 of 74 calls, 27%) mean recall was 0.537. A
+# 27-point gap traceable to one lookup.
+#
+# The map is derived from the answer key, not guessed, and only where the
+# evidence is strong. Share of each category's tickets whose relevant_kb_docs
+# name that sheet:
+#   Wi-Fi / Network -> netlink-router          100%
+#   Soft Serve      -> creamtech 78% · frostypro 72%   (both brands in play)
+#   Printers        -> star 54% · epson 46%            (both brands in play)
+#   POS             -> foodtech-pos            71%
+# Kiosks and Online Orders are deliberately absent: their top sheet appears on
+# only 20% and 16% of tickets respectively, which is not a pattern worth
+# hard-coding. Those keep the version lookup alone.
+CATEGORY_SPEC_SHEETS = {
+    "wi-fi / network": ["netlink-router.md"],
+    "soft serve": ["creamtech-soft-serve.md", "frostypro-soft-serve.md"],
+    "printers": ["star-printer.md", "epson-printer.md"],
+    "pos": ["foodtech-pos.md"],
+}
+
+KB_SOP_DIR = Path("kb") / "sop"
+
+# SOP docs are written as CRITERIA ("escalate when..."), not as symptoms, so a
+# symptom-shaped semantic query never reaches them: across the 19 worst-recall
+# tickets the sop/ folder was expected 6 times and retrieved 0 times. Same
+# structural problem the spec sheets have, so it gets the same deterministic
+# treatment.
+#
+# escalation-procedure.md is attached to every ticket. The answer key names it
+# on 96 tickets and every one of them is an L2 escalation -- so whenever the
+# resolution agent is holding one of these, triage has already made a mistake
+# and the agent is the last chance to catch it. It has escalate_to_l2 available;
+# this gives it the written criteria for using it.
+ALWAYS_ATTACH_SOP = ["escalation-procedure.md"]
+
+# Topical, and rare (3 tickets) -- attached on subcategory rather than always,
+# because an end-of-day checklist is noise on a PIN-pad ticket.
+SUBCATEGORY_SOP = {
+    "end-of-day": "shift-end-checklist.md",
+    "terminal startup": "shift-start-checklist.md",
+}
+
+
+def _format_doc(folder: str, filename: str, base_dir: Path) -> Optional[str]:
+    path = base_dir / filename
+    if not path.exists():
+        return None
+    return f"--- Document Source: {folder}/{filename} ---\n{_extract_l1_sections(path.read_text())}\n"
+
+
+def get_reference_docs(ticket: dict) -> str:
+    """Deterministically attach the spec sheets and SOPs semantic search misses.
+
+    Returns one context block in the same '--- Document Source: X ---' shape as
+    search results, so provenance and the groundedness checker both keep
+    working unchanged. Deduplicated against the system_version lookup.
+    """
+    seen, blocks = set(), []
+
+    def add(folder: str, filename: str, base_dir: Path):
+        if filename in seen:
+            return
+        block = _format_doc(folder, filename, base_dir)
+        if block:
+            seen.add(filename)
+            blocks.append(block)
+
+    # 1. the version-matched sheet first -- when the asset record and the
+    #    symptom agree, this is the most precise signal available.
+    version_spec = get_system_spec(ticket.get("system_version", "") or "")
+    if version_spec:
+        match = re.search(r"--- Document Source: system-specs/(.+?) ---", version_spec)
+        if match:
+            seen.add(match.group(1))
+        blocks.append(version_spec)
+
+    # 2. sheets implied by the ticket's own category, covering the case where
+    #    the asset record points somewhere else.
+    for filename in CATEGORY_SPEC_SHEETS.get((ticket.get("category") or "").strip().lower(), []):
+        add("system-specs", filename, KB_SYSTEM_SPECS_DIR)
+
+    # 3. policy docs.
+    for filename in ALWAYS_ATTACH_SOP:
+        add("sop", filename, KB_SOP_DIR)
+    sop = SUBCATEGORY_SOP.get((ticket.get("subcategory") or "").strip().lower())
+    if sop:
+        add("sop", sop, KB_SOP_DIR)
+
+    return "\n".join(blocks)
+
 def get_asset_info(asset_id: str) -> str:
     """Retrieve details about a specific IT asset by its ID."""
     try:

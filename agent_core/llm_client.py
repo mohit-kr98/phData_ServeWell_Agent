@@ -24,8 +24,15 @@ from .tools import (
     reply_to_user,
     search_knowledge_base,
     search_faq,
-    get_system_spec
+    get_system_spec,
+    get_reference_docs
 )
+
+# Model-facing instructions live in prompts/ as files, not as string literals
+# here -- see that package's docstring for why. Absolute import: the package
+# sits at the repo root, which is the working directory for both the API
+# service and the eval scripts.
+import prompts
 
 BEDROCK_CHAT_MODEL = "nvidia.nemotron-nano-3-30b"
 
@@ -58,6 +65,11 @@ FAQ_N_RESULTS = int(os.environ.get("FAQ_N_RESULTS", "3"))
 # 3 -> 0.86s, 4 -> 1.19s, because the cross-encoder rerank is CPU-bound and
 # serialises. A 4th concurrent search really costs ~0.33s.
 SUBJECT_SEARCH = os.environ.get("SUBJECT_SEARCH", "0") not in ("0", "false", "False")
+
+# Attach category-implied spec sheets and the escalation SOP alongside the
+# system_version lookup. DEFAULT OFF -- tested and rejected on latency; the
+# full measurement is documented at the call site in run_resolution_agent.
+WIDE_REFERENCE_DOCS = os.environ.get("WIDE_REFERENCE_DOCS", "0") not in ("0", "false", "False")
 
 
 class BedrockChatModel:
@@ -312,18 +324,30 @@ def run_triage_agent(ticket_json: str):
     #   Portal Down            9        100%
     #   Machine Won't Start    7        100%
     #   Dispensing Issue       4        100%
+    #   DHCP                   6         83%
     #   Order Acceptance       6         83%
     #   Cleaning Cycle         4         75%
     #
     # The prompt below already tells the model to escalate backend/integration
     # faults and dead hardware in principle, but it was missing these in
-    # practice. Adding this rule fixed 24 of these 45 tickets at the cost of 2
-    # (INC-00117, INC-00139) -- both textually indistinguishable from their
-    # escalated siblings in the same subcategory, so likely dataset label
-    # noise rather than a recoverable feature.
+    # practice. Adding this rule fixed 24 of the first 45 tickets at the cost
+    # of 2 (INC-00117, INC-00139) -- both textually indistinguishable from
+    # their escalated siblings in the same subcategory, so likely dataset
+    # label noise rather than a recoverable feature.
+    #
+    # DHCP added after a follow-up pass: 5 of 6 are "DHCP pool exhaustion" on
+    # a router/server -- the same backend/infrastructure class as the others
+    # -- and the model was applying "history==0 -> prefer L1" too literally
+    # even here (confirmed live: INC-00013 and INC-00214, same fault, same
+    # history length, opposite live outputs). The one exception, INC-00103,
+    # is textually identical to the escalated ones too and was itself
+    # observed flipping L1/L2 between two live calls at temperature=0 --
+    # Bedrock's temp=0 is not perfectly reproducible for this model, so that
+    # single ticket was already unstable before this rule made it
+    # deterministic (net across the subcategory: +2 fixed, -1, so +1).
     BACKEND_OR_HARDWARE_SUBCATEGORIES = {
         "Loyalty Sync", "Duplicate Orders", "Portal Down",
-        "Machine Won't Start", "Dispensing Issue",
+        "Machine Won't Start", "Dispensing Issue", "DHCP",
         "Order Acceptance", "Cleaning Cycle",
     }
     subcategory = ticket.get("subcategory")
@@ -341,57 +365,7 @@ def run_triage_agent(ticket_json: str):
 
     llm = get_llm(temperature=0.0, max_tokens=250)
 
-    sys_prompt = """
-    You are an expert IT Triage Agent for ServeWell Hospitality. Decide the routing from the
-    ticket itself.
-
-    HOW MUCH L1 WORK HAS ALREADY HAPPENED is the strongest single signal. Count the entries in
-    `ticket_history` (notes written by L1 agents who already worked this ticket):
-      - 0 entries  -> nobody has worked it yet. Strongly prefer L1_GUIDED. Even if the symptom
-                      sounds physical, the runbook procedure has not been tried once.
-      - 1 entry    -> genuine judgement call. Escalate only if that note shows a real fix was
-                      carried out and failed, or names a backend/vendor cause.
-      - 2+ entries -> L1 has worked it repeatedly and it is still open. Strongly prefer
-                      L2_ESCALATION; this is what "L1 troubleshooting exhausted" looks like.
-
-    Route L2_ESCALATION when:
-    - `ticket_history` shows L1 already carried out a specific remedy (restart, power cycle,
-      reseat, reinstall, driver update) AND the symptom continued.
-    - The fault is in a BACKEND or INTEGRATION layer no store employee can reach: payment gateway,
-      database errors, server-side sync, vendor account or security action.
-    - A component has genuinely FAILED and needs replacing: no power from a verified outlet, a
-      dead device after a proper power cycle, physical damage.
-    - The fault spans multiple devices or multiple locations.
-
-    Route L1_GUIDED when a runbook walks the store through it and nobody has properly tried yet.
-    CRITICAL: a physical device does NOT mean a hardware failure. These are all L1 runbook work
-    even though they involve hardware -- calibrating a soft-serve machine that freezes product too
-    hard, reinstalling a printer driver, re-pairing a PIN pad, power-cycling a scanner, clearing a
-    print queue, re-seating a cable, working through an end-of-day settlement timeout. Escalate on
-    hardware only when a part is actually dead or must be replaced, not merely because the symptom
-    involves a physical machine.
-
-    A store employee's own pre-ticket attempt ("I already restarted it") is intake detail, not L1
-    troubleshooting -- it does not count toward exhaustion.
-
-    Severity and urgency language ("urgent", "peak hours", "revenue impact") appears on nearly
-    every ticket and is NOT a routing signal.
-
-    The ticket may carry an `escalation_flag`. It reflects what someone upstream marked, is right
-    only about half the time, and some tickets here are deliberately misleading. Weigh it as one
-    weak signal; decide from the symptom and the history.
-
-    Routing Options:
-    1. L1_GUIDED     -- Resolution Agent walks the store through the relevant runbook.
-    2. L2_ESCALATION -- hand off to a human L2 engineer.
-    3. NON_IT        -- not an IT issue at all (e.g. HR, facilities, general queries).
-
-    Respond in strict JSON format:
-    {
-      "routing": "L1_GUIDED" | "L2_ESCALATION" | "NON_IT",
-      "reasoning": "A brief explanation for the decision"
-    }
-    """
+    sys_prompt = prompts.load("triage_system")
     
     messages = [
         SystemMessage(content=sys_prompt),
@@ -449,43 +423,7 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
         escalate_to_l2
     ])
     
-    sys_prompt = """
-    You are an expert L1 IT Support Resolution Agent for ServeWell Hospitality.
-    Your goal is to guide the user towards resolution based on the company's knowledge base (runbooks).
-    
-    You have access to several tools.
-    Process:
-    1. Analyze the ticket symptoms.
-    2. An automated `search_knowledge_base` + FAQ search has ALREADY been run for you below -- read
-       it first. It finds the relevant runbook for the vast majority of tickets.
-    3. If it already contains a runbook that addresses this symptom, finish on your very first
-       turn -- do NOT make further *lookup* calls just to be thorough. Only call
-       `search_knowledge_base` yourself if the automated result is clearly about a different
-       symptom/device, and only look up asset/store/SLA info if the ticket's own text doesn't
-       already answer what you need. (`propose_action` is not a lookup; see step 4. You may emit
-       it together with your final action in the same turn, so it costs you nothing.)
-    4. If a [REMEDIATION ACTIONS AVAILABLE FOR THIS ASSET] block appears below AND a retrieved
-       runbook names one of those actions as the fix, call `propose_action` FIRST. It does not
-       execute anything -- it queues the action for a human to approve or reject.
-    5. Take a final action: Either `reply_to_user`, `resolve_ticket`, or `escalate_to_l2`.
-       Always do this, including after proposing an action -- the user still needs the manual
-       steps in case they would rather do it themselves or the approver declines.
-
-    Guardrail (CRITICAL):
-    - Every reply/resolution MUST be grounded in a runbook that's already in front of you (the
-      automated result, or your own follow-up search) -- never answer from your own knowledge.
-    - You MUST base your troubleshooting steps strictly on the retrieved runbooks.
-    - When replying to the user or resolving the ticket, you MUST provide a clear, step-by-step process for them to follow based on the runbook.
-    - If the knowledge base does not contain relevant information, you MUST escalate to L2.
-    - An automated `search_knowledge_base` call has ALREADY been run for you with the ticket's own
-      subject/description (see the automated search result below) -- that counts as your first
-      search. You get AT MOST ONE more `search_knowledge_base` call of your own, and only if the
-      automated result is clearly irrelevant. Calling it again after that is blocked and wastes a turn.
-    - You MUST NOT escalate the ticket to L2 (unless knowledge is missing) until you have first attempted to troubleshoot with the user via `reply_to_user` AT LEAST two separate times.
-    - NEVER repeat a search with the same or a near-identical query you already ran -- it will return the same result and only wastes time. Only search again with a genuinely different query (a different symptom, term, or document type) if the results so far are truly insufficient. The initial automated search results (and the FAQ/spec results, if present) are usually already enough -- check them first before deciding you need another search.
-
-    Style: Keep your final reply concise -- a one-sentence acknowledgment plus a short numbered list of steps (aim for under 150 words). Skip lengthy pleasantries and sign-offs.
-    """
+    sys_prompt = prompts.load("resolution_system")
     
     # Force an initial retrieval to guarantee the LLM has context
     try:
@@ -552,8 +490,26 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
     # system_version -- spec sheets rank poorly in semantic search against
     # symptom-style queries, so we attach the right one directly instead of
     # hoping the agent's own searches surface it.
+    #
+    # WIDE_REFERENCE_DOCS extends this to also attach category-implied spec
+    # sheets and the escalation SOP (see tools.get_reference_docs). DEFAULT OFF
+    # -- built, measured, and rejected on a latency trade, with the knob kept so
+    # the result stays reproducible rather than becoming folklore:
+    #
+    #   recall@k          72.8% -> 78.9%   (+6.1pt; tickets at <=50% recall 19 -> 11)
+    #   sop/ retrieved      0/75 -> 77/77
+    #   mean latency      1.168s -> 1.355s (+16%)
+    #   p95 latency       3.944s -> 4.779s (+21%)
+    #   routing / groundedness / guardrails   unchanged
+    #
+    # The extra time is prompt assembly and token throughput, not extra
+    # reasoning: mean LLM calls stayed flat (1.91 -> 1.95) and mean LLM time
+    # actually fell. Recall is a secondary metric here -- hit-rate (the decisive
+    # runbook being present) is already 100% either way -- so the latency cost
+    # was judged not worth it. Flip WIDE_REFERENCE_DOCS=1 to re-enable.
     t0 = time.perf_counter()
-    spec_context = get_system_spec(t_dict.get("system_version", ""))
+    spec_context = (get_reference_docs(t_dict) if WIDE_REFERENCE_DOCS
+                    else get_system_spec(t_dict.get("system_version", "")))
     spec_time = time.perf_counter() - t0
     if spec_context:
         trace.append({"type": "tool_call", "name": "get_system_spec", "args": {"system_version": t_dict.get("system_version", "")}})
@@ -603,23 +559,12 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
     else:
         action_offer = ""
 
-    context_prompt = f"""
-    [SYSTEM AUTOMATED SEARCH RESULT]
-    I have automatically searched the Knowledge Base for you using the ticket details.
-    Each excerpt below is labelled with the document it came from.
-
-    {merged_context}
-
-    {enrich_context}
-    These structured facts are authoritative -- they were fetched from the CMDB, store master
-    data and SLA matrix, not inferred. Use them directly and do NOT contradict or re-guess them.
-    If the asset is out of warranty, do not advise a warranty replacement. If the asset is not in
-    the CMDB, say so plainly rather than inventing details about it.
-
-    {action_offer}
-
-    If these runbooks contain the solution, use them to resolve the ticket. If they are irrelevant, use the `search_knowledge_base` tool to search with different keywords.
-    """
+    context_prompt = prompts.render(
+        "resolution_context",
+        merged_context=merged_context,
+        enrich_context=enrich_context,
+        action_offer=action_offer,
+    )
 
     messages = [
         SystemMessage(content=sys_prompt),
@@ -645,6 +590,18 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
     MAX_KB_CALLS = kb_calls_already_used + 1
     kb_call_count = kb_calls_already_used
 
+    # Measured on the slow tail of a latency pass: several tickets called
+    # propose_action twice (reconsidering the same proposal a turn later),
+    # each round-trip costing a full LLM call (~0.6-1.7s) for no change in
+    # the outcome -- one ticket burned all 5 loop turns this way (double
+    # propose_action + a redundant search) for a 7s response against a
+    # ~1.9s average. A successful proposal is queued and re-proposing it
+    # doesn't improve on that, so it's capped the same way the KB search
+    # budget already is. A proposal REFUSED by policy doesn't count against
+    # the cap -- that's the one case where trying a different, valid action
+    # is legitimate rather than redundant.
+    proposal_already_queued = False
+
     def _guarded_propose_action(action: str = "", asset_id: str = "", reason: str = ""):
         """Re-check every proposal deterministically before it can reach a human.
 
@@ -652,9 +609,32 @@ def run_resolution_agent(ticket_json: str, chat_history: list = None):
         is refused here and never becomes an approvable item, so a confidently
         wrong suggestion cannot surface as a button someone might click.
         """
+        nonlocal proposal_already_queued
+        if proposal_already_queued:
+            return json.dumps({
+                "status": "ALREADY_PROPOSED",
+                "reason": "An action was already queued for approval this session. Do not propose "
+                          "again -- call reply_to_user, resolve_ticket, or escalate_to_l2 now to finish.",
+            })
+        if not valid_actions:
+            # Asset types outside the catalog (Soft Serve machines, routers,
+            # Wi-Fi gear) have no automatable action at all. Without this,
+            # a model that guesses one invalid name just guesses another on
+            # refusal -- measured on INC-00166 (Soft Serve/Motor Alarm):
+            # "reset_motor" refused, then "clear_error_log" refused, each a
+            # full wasted LLM round-trip. Naming the fact that nothing
+            # exists (rather than just that this one guess was wrong) heads
+            # off the retry instead of inviting another guess.
+            return json.dumps({
+                "status": "REFUSED_BY_POLICY", "action": action,
+                "reason": f"No automatable action exists for asset type '{asset_type}'. Do not call "
+                          "propose_action again -- go straight to reply_to_user, resolve_ticket, or "
+                          "escalate_to_l2.",
+            })
         allowed, why = policy_check(action, t_dict, asset_type)
         if not allowed:
             return json.dumps({"status": "REFUSED_BY_POLICY", "action": action, "reason": why})
+        proposal_already_queued = True
         return propose_action(action=action, asset_id=asset_id or (t_dict.get("asset_id") or ""), reason=reason)
 
     tool_map = {
@@ -778,31 +758,7 @@ def run_l2_copilot_agent(ticket_json: str, escalation_context: str = "", chat_hi
         resolve_ticket,
     ])
 
-    sys_prompt = """
-    You are an L2 IT Support Copilot for ServeWell Hospitality, assisting a human L2 engineer
-    who is investigating a ticket that L1 could not resolve or that was routed straight to L2.
-    You are talking to the ENGINEER, not the store or customer -- be technical and direct, skip
-    the customer-service tone.
-
-    A [WHY THIS TICKET IS AT L2] block below explains how it got here (the triage/L1 reasoning,
-    or the L1 resolution agent's own escalation reason) -- read it before answering so you don't
-    repeat ground the engineer already knows was covered.
-
-    You have the same knowledge-base and lookup tools L1 had: search_knowledge_base, search_faq,
-    get_asset_info, get_store_info, check_sla, get_system_spec. Use them to answer the engineer's
-    questions and to ground any troubleshooting suggestion you make -- cite what you found, don't
-    invent steps that aren't in a retrieved runbook or spec sheet. If the engineer asks something
-    the retrieved content doesn't cover, say so plainly rather than guessing.
-
-    Do NOT call search_knowledge_base/search_faq more than twice combined per question. Rewording
-    the same query and searching again rarely surfaces anything new -- if two searches don't answer
-    it, tell the engineer what you found (or didn't) and answer with that, or ask them a clarifying
-    question instead of searching again.
-
-    If the engineer says the issue is fixed or asks you to close the ticket, call `resolve_ticket`
-    with a summary of the actual root cause and fix -- not the original L1 guidance, since L1's
-    guidance is presumably what didn't work here.
-    """
+    sys_prompt = prompts.load("l2_copilot_system")
 
     escalation_block = f"\n\n[WHY THIS TICKET IS AT L2]\n{escalation_context}\n" if escalation_context else ""
     messages = [

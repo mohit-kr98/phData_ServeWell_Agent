@@ -21,7 +21,6 @@ ADMIN_URL = os.environ.get("ADMIN_URL", "http://localhost:8003")
 PROJECT_ROOT = Path(__file__).parent.absolute()
 TICKETS_DIR = PROJECT_ROOT / "tickets" / "train"
 EVAL_RUNS_DIR = PROJECT_ROOT / "data" / "eval_runs"
-RAG_RESULTS_CSV = PROJECT_ROOT / "RAG_Results" / "Rag_result.csv"
 LATENCY_RESULT_CSV = PROJECT_ROOT / "RAG_Results" / "Latency_result.csv"
 LATENCY_DETAILS_CSV = PROJECT_ROOT / "RAG_Results" / "Latency_details.csv"
 ARCH_DIAGRAM_PATH = PROJECT_ROOT / "design_md" / "system_architecture.html"
@@ -29,22 +28,10 @@ LABELS_PATH = PROJECT_ROOT / "labels" / "train_labels.json"
 TRAIN_INDEX_CSV = PROJECT_ROOT / "tickets" / "train_index.csv"
 
 ROUTING_STYLE = {
-    "L1_GUIDED": ("l1", "🟢 L1 — Guided Resolution"),
-    "L2_ESCALATION": ("l2", "🟠 L2 — Escalation"),
-    "NON_IT": ("nonit", "⚪ Non-IT — Routed Out"),
-    "ERROR": ("l2", "🔴 Error"),
-}
-
-TOOL_ICONS = {
-    "search_knowledge_base": "🔍",
-    "search_faq": "❓",
-    "get_system_spec": "📋",
-    "get_asset_info": "🖥️",
-    "get_store_info": "🏬",
-    "check_sla": "⏱️",
-    "reply_to_user": "💬",
-    "resolve_ticket": "✅",
-    "escalate_to_l2": "🚨",
+    "L1_GUIDED": ("l1", "L1 — Guided Resolution"),
+    "L2_ESCALATION": ("l2", "L2 — Escalation"),
+    "NON_IT": ("nonit", "Non-IT — Routed Out"),
+    "ERROR": ("l2", "Error"),
 }
 
 
@@ -181,8 +168,7 @@ def render_trace(trace):
         step_type = step.get("type")
         if step_type == "tool_call":
             name = step.get("name")
-            icon = TOOL_ICONS.get(name, "🛠️")
-            st.markdown(f"**{icon} `{name}`**")
+            st.markdown(f"**`{name}`**")
             args = {k: v for k, v in step.get("args", {}).items() if k != "message"}
             if args:
                 st.caption(", ".join(f"{k}={v}" for k, v in args.items()))
@@ -192,18 +178,18 @@ def render_trace(trace):
             if name in ("search_knowledge_base", "search_faq", "get_system_spec"):
                 sources = list(dict.fromkeys(re.findall(r"--- Document Source: (.+?) ---", result)))
                 if sources:
-                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;📄 Retrieved: " + " · ".join(f"`{s}`" for s in sources))
+                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;Retrieved: " + " · ".join(f"`{s}`" for s in sources))
                     with st.expander("View retrieved content", expanded=False):
                         st.text(result)
                 else:
-                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;⚠️ No relevant documents found")
+                    st.markdown("&nbsp;&nbsp;&nbsp;&nbsp;No relevant documents found")
             else:
                 with st.expander(f"Result of `{name}`", expanded=False):
                     st.code(result)
         elif step_type == "reasoning":
             text = (step.get("text") or "").strip()
             if text:
-                st.markdown(f"> 🧠 {text}")
+                st.markdown(f"> {text}")
 
 
 def build_escalation_context(state: dict) -> str:
@@ -231,15 +217,15 @@ def render_approval_gate(state: dict, ticket_id: str):
         return
 
     outcome = state.get("action_outcome")
-    st.markdown("##### 🔐 Action proposed — human approval required")
+    st.markdown("##### Action proposed — human approval required")
 
     if outcome:
         if outcome.get("status") == "EXECUTED":
-            st.success(f"✅ Executed: {outcome.get('label')} on `{outcome.get('asset_id')}` "
+            st.success(f"Executed: {outcome.get('label')} on `{outcome.get('asset_id')}` "
                        f"(approved by {outcome.get('approved_by')})")
             st.caption(outcome.get("note", ""))
         elif outcome.get("status") == "DENIED":
-            st.info("🚫 Denied by reviewer — nothing ran. The store still has the manual steps above.")
+            st.info("Denied by reviewer — nothing ran. The store still has the manual steps above.")
         else:
             st.warning(f"Refused: {outcome.get('reason', outcome)}")
         return
@@ -251,7 +237,7 @@ def render_approval_gate(state: dict, ticket_id: str):
 
     col_a, col_d = st.columns([1, 1])
     with col_a:
-        if st.button("✅ Approve & run", type="primary", key=f"approve_{ticket_id}"):
+        if st.button("Approve & run", type="primary", key=f"approve_{ticket_id}"):
             try:
                 res, _ = timed_post(f"{API_URL}/execute_action", {
                     "action": proposal.get("action"), "asset_id": proposal.get("asset_id"),
@@ -262,13 +248,13 @@ def render_approval_gate(state: dict, ticket_id: str):
                 st.error(str(e))
             st.rerun()
     with col_d:
-        if st.button("🚫 Deny", key=f"deny_{ticket_id}"):
+        if st.button("Deny", key=f"deny_{ticket_id}"):
             state["action_outcome"] = {"status": "DENIED"}
             st.rerun()
 
 
 def render_l2_copilot(state: dict, ticket_id: str, ticket_json: str):
-    st.markdown("##### 🧑‍💻 L2 Engineer Copilot")
+    st.markdown("##### L2 Engineer Copilot")
     st.caption("Chat with an assistant sharing L1's knowledge-base/asset/store/SLA tools — for the "
                "human L2 engineer investigating this ticket, not the store.")
 
@@ -281,7 +267,7 @@ def render_l2_copilot(state: dict, ticket_id: str, ticket_json: str):
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
             if msg.get("elapsed") is not None:
-                st.caption(f"⏱️ {msg['elapsed']:.1f}s")
+                st.caption(f"{msg['elapsed']:.1f}s")
 
     engineer_msg = st.chat_input("Ask the copilot (as the L2 engineer)...", key=f"l2_chat_{ticket_id}")
     if engineer_msg:
@@ -306,7 +292,7 @@ def render_l2_copilot(state: dict, ticket_id: str, ticket_json: str):
         render_trace(state["l2_trace"])
 
 
-st.set_page_config(page_title="ServeWell IT Support Agent", layout="wide", page_icon="🛠️")
+st.set_page_config(page_title="ServeWell IT Support Agent", layout="wide")
 
 st.markdown("""
 <style>
@@ -319,7 +305,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🛠️ ServeWell Agentic IT Support")
+st.title("ServeWell Agentic IT Support")
 st.caption("Triage + Resolution agents over a reranked RAG pipeline, with grounding and escalation guardrails.")
 
 health = {
@@ -333,7 +319,7 @@ st.markdown(" &nbsp;·&nbsp; ".join(
     for name, ok in health.items()
 ), unsafe_allow_html=True)
 
-tab_demo, tab_eval, tab_latency, tab_arch, tab_admin = st.tabs(["🚀 Live Demo", "📊 Evaluation", "⏱️ Latency", "🏗️ Architecture & KB", "⚙️ Admin"])
+tab_demo, tab_eval, tab_latency, tab_arch, tab_admin = st.tabs(["Live Demo", "Evaluation", "Latency", "Architecture & KB", "Admin"])
 
 # ============================================================ LIVE DEMO ====
 with tab_demo:
@@ -389,9 +375,9 @@ with tab_demo:
 
         col_run, col_reset = st.columns([1, 5])
         with col_run:
-            run_clicked = st.button("▶️ Run Agent", type="primary", disabled=state["started"], key=f"run_{ticket_id}")
+            run_clicked = st.button("Run Agent", type="primary", disabled=state["started"], key=f"run_{ticket_id}")
         with col_reset:
-            if state["started"] and st.button("↺ Reset", key=f"reset_{ticket_id}"):
+            if state["started"] and st.button("Reset", key=f"reset_{ticket_id}"):
                 del st.session_state[state_key]
                 st.rerun()
 
@@ -431,7 +417,7 @@ with tab_demo:
             turn_elapsed = [m["elapsed"] for m in state["chat_history"] if m.get("role") == "assistant" and m.get("elapsed") is not None]
             if turn_elapsed:
                 timing_bits.append(f"resolution {sum(turn_elapsed):.1f}s")
-            timing_label = " ⏱️ " + " · ".join(timing_bits) if timing_bits else ""
+            timing_label = "  " + " · ".join(timing_bits) if timing_bits else ""
             st.markdown(f'<span class="pill pill-{cls}">{label}</span>{timing_label}', unsafe_allow_html=True)
             st.caption(state["reasoning"])
 
@@ -447,14 +433,14 @@ with tab_demo:
                 gt_routing = str(gt.get("correct_routing", ""))
                 agent_routing = (state["routing"] or "").strip().lower()
                 match = agent_routing == gt_routing.strip().lower()
-                verdict = "✅ Agent matched" if match else "❌ Agent disagreed"
+                verdict = "Agent matched" if match else "Agent disagreed"
                 st.markdown(f"**Answer key (labels/train_labels.json):** `{gt_routing}` — {verdict}")
                 if gt.get("escalation_reason"):
                     st.caption(gt["escalation_reason"])
 
             latency_rows = build_latency_rows(state)
             if latency_rows:
-                with st.expander("⏱️ Component-level latency", expanded=False):
+                with st.expander("Component-level latency", expanded=False):
                     df_latency = pd.DataFrame(latency_rows)
                     st.dataframe(df_latency, use_container_width=True, hide_index=True)
                     llm_total = sum(r["Duration (s)"] for r in latency_rows if r["Type"] == "LLM")
@@ -469,7 +455,7 @@ with tab_demo:
                         with st.chat_message(msg["role"]):
                             st.write(msg["content"])
                             if msg.get("elapsed") is not None:
-                                st.caption(f"⏱️ {msg['elapsed']:.1f}s")
+                                st.caption(f"{msg['elapsed']:.1f}s")
 
                     if state["status"] == "awaiting_user":
                         user_reply = st.chat_input("Reply as the store employee...")
@@ -492,9 +478,9 @@ with tab_demo:
 
                     if state["status"] in ("resolved", "escalated"):
                         if state["status"] == "resolved":
-                            st.success("✅ Ticket resolved")
+                            st.success("Ticket resolved")
                         else:
-                            st.warning("🚨 Escalated to L2")
+                            st.warning("Escalated to L2")
                             st.divider()
                             render_l2_copilot(state, ticket_id, ticket_json)
 
@@ -505,10 +491,10 @@ with tab_demo:
                         found = relevant & retrieved
                         st.markdown("##### Retrieval vs. ground truth (unverified)")
                         (st.success if found else st.error)(
-                            f"{'✅' if found else '❌'} {len(found)}/{len(relevant)} relevant docs retrieved",
+                            f"{len(found)}/{len(relevant)} relevant docs retrieved",
                             icon=None,
                         )
-                        st.caption("Expected: " + ", ".join(f"`{d}`" + (" ✓" if d in retrieved else "") for d in sorted(relevant)))
+                        st.caption("Expected: " + ", ".join(f"`{d}`" + (" (retrieved)" if d in retrieved else "") for d in sorted(relevant)))
                         st.caption("Source: `labels/train_labels.json:relevant_kb_docs` — the challenge answer key.")
 
                     st.markdown("##### Guardrails")
@@ -516,7 +502,7 @@ with tab_demo:
                     if not checks:
                         st.caption("No guardrail-relevant actions yet.")
                     for ok, text in checks:
-                        (st.success if ok else st.error)(text, icon="✅" if ok else "⚠️")
+                        (st.success if ok else st.error)(text)
 
                     st.markdown("##### Agent trace")
                     render_trace(state["trace"])
@@ -622,8 +608,109 @@ with tab_eval:
 
         details_path = selected_file.with_name(selected_file.name.replace("_metrics.json", "_details.csv"))
         if details_path.exists():
+            details_df = pd.read_csv(details_path)
+
+            # Where the queue actually went. Routing *accuracy* above says how
+            # often the agent agreed with the answer key; it does not say how
+            # the work was split, and those answer different questions. A run
+            # could be 90% accurate while sending far too much to L2 -- which
+            # is what capacity planning and the ROI model actually depend on,
+            # since only the L1 share is deflectable.
+            if "actual_routing" in details_df.columns:
+                st.markdown("###### How the queue split")
+                routed = details_df["actual_routing"].fillna("(none)").astype(str)
+                n_total = len(routed)
+                n_l1 = int((routed == "l1_guided").sum())
+                n_l2 = int((routed == "l2_escalation").sum())
+                # Anything that is neither is a failed/odd run -- surfaced
+                # rather than folded into a percentage, because a silent error
+                # row would otherwise read as a routing decision.
+                n_other = n_total - n_l1 - n_l2
+
+                exp = details_df.get("expected_routing")
+                exp_l1 = int((exp == "l1_guided").sum()) if exp is not None else None
+                exp_l2 = int((exp == "l2_escalation").sum()) if exp is not None else None
+
+                q1, q2, q3, q4 = st.columns(4)
+                q1.metric(
+                    "Handled at L1", f"{n_l1}",
+                    delta=(None if exp_l1 is None else f"{n_l1 - exp_l1:+d} vs answer key"),
+                    delta_color="off",
+                    help="Tickets the agent kept at L1_GUIDED and walked the store through.",
+                )
+                q2.metric(
+                    "Escalated to L2", f"{n_l2}",
+                    delta=(None if exp_l2 is None else f"{n_l2 - exp_l2:+d} vs answer key"),
+                    delta_color="off",
+                    help="Tickets the agent handed to a human L2 engineer.",
+                )
+                q3.metric(
+                    "L1 share", f"{(n_l1 / n_total * 100):.1f}%" if n_total else "—",
+                    help="The deflectable share — the only portion the ROI model can claim against.",
+                )
+                q4.metric(
+                    "Tickets routed", f"{n_total}",
+                    delta=(f"{n_other} not routed" if n_other else None),
+                    delta_color="off",
+                    help="Rows in this run. 'Not routed' means the call errored, so no decision was made.",
+                )
+                split_note = (
+                    f"Agent sent **{n_l1} to L1** and **{n_l2} to L2**"
+                    + (f" ({n_other} errored)" if n_other else "")
+                    + (f". The answer key says {exp_l1} / {exp_l2}." if exp_l1 is not None else ".")
+                    + " Accuracy and split are different questions: the agent can send the right *number*"
+                      " to each queue while still sending the wrong *tickets*."
+                )
+                st.caption(split_note)
+
+            # Per-ticket retrieval quality, keyed by ticket ID. The headline
+            # recall@k above is a single average over exactly these rows;
+            # breaking it out by ticket is the actionable version, because the
+            # same average can mean "uniformly mediocre everywhere" or "mostly
+            # perfect with a bad tail", and those call for different fixes.
+            if "retrieval_recall" in details_df.columns:
+                scored = details_df[details_df["retrieval_recall"].notna()]
+                if not scored.empty:
+                    st.markdown("###### Retrieval accuracy per ticket")
+                    n_missed = int((scored["retrieval_recall"] < 1).sum())
+                    misses_only = st.checkbox(
+                        f"Show only tickets with missed documents ({n_missed} of {len(scored)})",
+                        value=False, key="retrieval_chart_misses_only",
+                    )
+                    chart_src = scored[scored["retrieval_recall"] < 1] if misses_only else scored
+                    chart_src = chart_src[["ticket_id", "retrieval_recall"]].sort_values("retrieval_recall")
+                    # Altair rather than st.bar_chart: st.bar_chart re-sorts the
+                    # x-axis alphabetically by index, which silently discarded
+                    # the sort_values above and left the caption claiming an
+                    # ordering the chart did not have. Encoding sort explicitly
+                    # is the only way to hold worst-first.
+                    import altair as alt
+                    chart = (
+                        alt.Chart(chart_src)
+                        .mark_bar()
+                        .encode(
+                            x=alt.X("ticket_id:N", sort=list(chart_src["ticket_id"]),
+                                    title=None, axis=alt.Axis(labelAngle=-90, labelFontSize=9)),
+                            y=alt.Y("retrieval_recall:Q", title="recall@k",
+                                    scale=alt.Scale(domain=[0, 1])),
+                            color=alt.condition(
+                                alt.datum.retrieval_recall <= 0.5,
+                                alt.value("#C0563F"), alt.value("#1F7A6B")),
+                            tooltip=["ticket_id", "retrieval_recall"],
+                        )
+                        .properties(height=340)
+                    )
+                    st.altair_chart(chart, use_container_width=True)
+                    st.caption(
+                        f"recall@k per ticket, worst first (red = 50% or below) — the share of that ticket's labelled "
+                        f"`relevant_kb_docs` that retrieval actually returned. Only {len(scored)} of "
+                        f"{len(details_df)} tickets appear: a ticket is scoreable here only if it routed "
+                        "to L1_GUIDED (so retrieval ran at all) and the answer key lists relevant docs "
+                        "for it. 1.0 means every labelled document was retrieved."
+                    )
+
             with st.expander("Per-ticket results", expanded=False):
-                st.dataframe(pd.read_csv(details_path), use_container_width=True)
+                st.dataframe(details_df, use_container_width=True)
 
     st.divider()
     st.markdown("##### Run a new evaluation")
@@ -634,57 +721,53 @@ with tab_eval:
                "since routing accuracy is graded against that same flag, letting the agent see it would just be "
                "checking that a value equals itself -- trivially ~100%, and not a test of anything.)")
 
-    limit = st.slider("Number of tickets to evaluate", 5, 256, 20)
-    if st.button("▶️ Run evaluation now", type="primary"):
-        with st.spinner(f"Evaluating {limit} tickets against ground truth..."):
+    col_lim, col_par = st.columns(2)
+    limit = col_lim.slider("Number of tickets to evaluate", 5, 256, 20)
+    workers = col_par.slider("Tickets processed in parallel", 1, 12, 1)
+
+    # Concurrency is a throughput knob, not a latency one, and the difference
+    # matters because this same run publishes the latency figures above.
+    # Tickets run concurrently queue behind each other on the single-worker
+    # api_service and the CPU-bound cross-encoder in query_pipeline (measured:
+    # 1 call ~0.55s vs 4 concurrent ~1.19s), so per-ticket durations come out
+    # inflated. eval_labeled flags those runs invalid and keeps them out of
+    # the latency history; this warning is so nobody is surprised by it.
+    if workers > 1:
+        st.warning(
+            f"**{workers}× parallel — accuracy only.** The batch finishes much faster, but each "
+            "ticket queues behind the others, so this run's latency numbers are inflated and will "
+            "be marked invalid (and excluded from the latency history). Use 1 for quotable latency."
+        )
+
+    # Rendered from session state rather than written inline after the run:
+    # the st.rerun() below (needed to refresh the metrics above with the new
+    # run) discards the current render pass, so anything written before it
+    # never reaches the screen. Stash the timing, rerun, then show it here.
+    last_timing = st.session_state.get("last_eval_timing")
+    if last_timing:
+        st.success(
+            f"Last run: **{last_timing['limit']} tickets in {last_timing['elapsed']:.1f}s** "
+            f"({last_timing['per_ticket']:.2f}s per ticket wall-clock, "
+            f"{last_timing['workers']}× parallel)."
+        )
+
+    if st.button("Run evaluation now", type="primary"):
+        mode = f"{limit} tickets, {workers}× parallel" if workers > 1 else f"{limit} tickets, serial"
+        with st.spinner(f"Evaluating {mode} against ground truth..."):
             try:
                 from services.eval_labeled import evaluate as run_labeled_eval
-                new_metrics, _ = run_labeled_eval(limit=limit)
-                st.success("Evaluation complete — accuracy and latency shown above.")
+                t0 = time.perf_counter()
+                new_metrics, _ = run_labeled_eval(limit=limit, workers=workers)
+                elapsed = time.perf_counter() - t0
+                st.session_state["last_eval_timing"] = {
+                    "elapsed": elapsed,
+                    "per_ticket": elapsed / limit if limit else 0,
+                    "limit": limit,
+                    "workers": workers,
+                }
                 st.rerun()
             except Exception as e:
                 st.error(f"Evaluation failed: {e}")
-
-    st.divider()
-    st.markdown("##### Does the cross-encoder reranker actually help?")
-    st.caption("Retrieval-only ablation — same query sent twice per ticket, once reranked and once left in raw embedding-similarity order. No LLM calls, so it's fast to re-run.")
-
-    if RAG_RESULTS_CSV.exists():
-        rag_df = pd.read_csv(RAG_RESULTS_CSV)
-        ablation_df = rag_df[rag_df["eval_type"] == "retrieval_ablation"]
-        if not ablation_df.empty:
-            latest_ts = ablation_df["timestamp"].max()
-            latest = ablation_df[ablation_df["timestamp"] == latest_ts]
-            reranked = latest[latest["reranker_enabled"] == True]
-            baseline = latest[latest["reranker_enabled"] == False]
-            if not reranked.empty and not baseline.empty:
-                r, b = reranked.iloc[0], baseline.iloc[0]
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Hit-rate — with reranker", f"{r['retrieval_hit_rate'] * 100:.1f}%",
-                          delta=f"{(r['retrieval_hit_rate'] - b['retrieval_hit_rate']) * 100:+.1f}pp vs. no rerank")
-                c2.metric("Recall@k — with reranker", f"{r['retrieval_recall_avg'] * 100:.1f}%",
-                          delta=f"{(r['retrieval_recall_avg'] - b['retrieval_recall_avg']) * 100:+.1f}pp vs. no rerank")
-                c3.metric("Tickets tested", int(r["tickets_evaluated"]))
-                st.caption(f"Baseline without reranking: {b['retrieval_hit_rate'] * 100:.1f}% hit-rate, {b['retrieval_recall_avg'] * 100:.1f}% recall@k. Run: `{latest_ts}`")
-        else:
-            st.info("No ablation run yet — use the button below.")
-    else:
-        st.info("No ablation run yet — use the button below.")
-
-    if st.button("▶️ Run reranker ablation now"):
-        with st.spinner("Querying the knowledge base with and without reranking for every labeled ticket..."):
-            try:
-                from services.eval_retrieval_ablation import run_ablation
-                reranked_m, baseline_m = run_ablation(limit=0)
-                st.success("Ablation complete.")
-                st.json({"with_reranker": reranked_m, "without_reranker": baseline_m})
-                st.rerun()
-            except Exception as e:
-                st.error(f"Ablation failed: {e}")
-
-    if RAG_RESULTS_CSV.exists():
-        with st.expander("All RAG_Results runs"):
-            st.dataframe(pd.read_csv(RAG_RESULTS_CSV), use_container_width=True)
 
 # ============================================================== LATENCY ====
 with tab_latency:
@@ -739,7 +822,7 @@ with tab_latency:
     st.markdown("##### Run a new latency measurement")
     st.caption("Calls the live agent for every labeled ticket and records per-component timing. Takes a few minutes for the full set.")
     lat_limit = st.slider("Number of tickets to measure", 5, 220, 20, key="latency_limit_slider")
-    if st.button("▶️ Run latency measurement now", type="primary"):
+    if st.button("Run latency measurement now", type="primary"):
         with st.spinner(f"Measuring latency across {lat_limit} tickets..."):
             try:
                 from services.eval_latency import run_latency_eval
@@ -774,7 +857,7 @@ with tab_arch:
 with tab_admin:
     st.caption("Behind-the-scenes tooling — not part of the live demo flow.")
 
-    with st.expander("📚 Knowledge base ingestion"):
+    with st.expander("Knowledge base ingestion"):
         kb_dir = st.text_input("KB directory", value="./kb", key="admin_kb_dir")
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -805,7 +888,7 @@ with tab_admin:
             p = st.session_state["admin_preview"]
             st.write(f"{p.get('total_chunks', 0)} chunks across categories: {', '.join(p.get('categories', []))}")
 
-    with st.expander("🧮 Vector store"):
+    with st.expander("Vector store"):
         try:
             stats = requests.get(f"{ADMIN_URL}/pgvector/stats", timeout=5).json()
             st.metric("Total vectors", stats.get("total_vectors", 0))
@@ -827,7 +910,7 @@ with tab_admin:
                 except Exception as e:
                     st.error(str(e))
 
-    with st.expander("📜 Processed ticket history"):
+    with st.expander("Processed ticket history"):
         try:
             hist = requests.get(f"{API_URL}/history", timeout=5).json().get("history", [])
             if hist:
@@ -837,7 +920,7 @@ with tab_admin:
         except Exception as e:
             st.error(str(e))
 
-    with st.expander("📦 Batch regression run (sample tickets)"):
+    with st.expander("Batch regression run (sample tickets)"):
         sample_ids = list_sample_tickets()
         if not sample_ids:
             st.caption(f"No sample tickets found in `{TICKETS_DIR}`.")

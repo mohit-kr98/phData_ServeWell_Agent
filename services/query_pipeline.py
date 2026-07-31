@@ -94,12 +94,40 @@ def embed_query_cached(text: str) -> list:
 @app.get("/cache_stats")
 def cache_stats():
     total = _embed_cache_hits + _embed_cache_misses
+    result_total = _result_cache_hits + _result_cache_misses
     return {
         "embed_cache_size": len(_embed_cache),
         "hits": _embed_cache_hits,
         "misses": _embed_cache_misses,
         "hit_rate": _embed_cache_hits / total if total else 0,
+        "result_cache_size": len(_result_cache),
+        "result_hits": _result_cache_hits,
+        "result_misses": _result_cache_misses,
+        "result_hit_rate": _result_cache_hits / result_total if result_total else 0,
     }
+
+
+# The embed cache above still pays for a PGVector round-trip to both stores
+# plus a cross-encoder rerank pass on every call, even when the query text is
+# an exact repeat. That's the expensive part: reranking is CPU-bound and was
+# measured NOT to scale linearly under concurrency (1 call ~0.55s, 4
+# concurrent calls ~1.19s), and it's exactly what a handful of tickets fire in
+# parallel via the resolution agent's forced initial/category/subject
+# searches. The category-style query (f"{subcategory} issue troubleshooting")
+# repeats across every ticket sharing a subcategory -- ~45 subcategories over
+# far more tickets -- so the same full query recurs constantly. Caching the
+# whole formatted result, keyed on every parameter that affects it, skips
+# PGVector and the reranker entirely on a repeat instead of just the
+# embedding call, which is the lever that actually moves p95 under load.
+RESULT_CACHE_MAX = 512
+_result_cache: "OrderedDict[tuple, dict]" = OrderedDict()
+_result_cache_hits = 0
+_result_cache_misses = 0
+
+
+def _result_cache_key(req: "QueryRequest") -> tuple:
+    filt = tuple(sorted(req.metadata_filter.items())) if req.metadata_filter else None
+    return (req.query, req.n_results, req.search_type, req.rerank, filt)
 
 
 class QueryRequest(BaseModel):
@@ -111,6 +139,14 @@ class QueryRequest(BaseModel):
 
 @app.post("/query")
 async def query_knowledge_base(req: QueryRequest):
+    global _result_cache_hits, _result_cache_misses
+    cache_key = _result_cache_key(req)
+    if cache_key in _result_cache:
+        _result_cache.move_to_end(cache_key)
+        _result_cache_hits += 1
+        return _result_cache[cache_key]
+    _result_cache_misses += 1
+
     try:
         initial_k = max(10, req.n_results * 2)
 
@@ -142,8 +178,14 @@ async def query_knowledge_base(req: QueryRequest):
         else:
             candidates.extend(main_results)
 
+        def _cache_and_return(payload: dict) -> dict:
+            _result_cache[cache_key] = payload
+            if len(_result_cache) > RESULT_CACHE_MAX:
+                _result_cache.popitem(last=False)
+            return payload
+
         if not candidates:
-            return {"status": "success", "results": "No relevant documents found."}
+            return _cache_and_return({"status": "success", "results": "No relevant documents found."})
             
         # Deduplicate candidates: Delta chunks were added to the list first, so they take precedence
         unique_candidates = []
@@ -175,8 +217,8 @@ async def query_knowledge_base(req: QueryRequest):
             logger.info(f"Result {idx+1} [Source: {source}]: {doc.page_content[:100]}...")
             formatted_results.append(f"--- Document Source: {source} ---\n{doc.page_content}\n")
 
-        return {"status": "success", "results": "\n".join(formatted_results)}
-        
+        return _cache_and_return({"status": "success", "results": "\n".join(formatted_results)})
+
     except Exception as e:
         logger.error(f"Error during query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
